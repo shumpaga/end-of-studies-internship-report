@@ -1,17 +1,21 @@
 \documentclass[a4paper,12pt,twoside]{report}
 \usepackage[left=2cm,right=2cm,top=2cm,bottom=3cm]{geometry}
+\usepackage[utf8]{inputenc}
+
+\usepackage{tocloft} % for table of content line spacing
+\renewcommand\cftchapafterpnum{\vskip1pt}
+\renewcommand\cftsecafterpnum{\vskip4pt}
 
 \include{thesis.preamble}
 
-
 \begin{document}
 
-\title{\LARGE {\bf Title of my Ph.D. Thesis}\\
+\title{\LARGE {\bf Various contributions to ContextCapture:\\Scan Finder, Point Cloud Visibility and Point Cloud Compression}\\
  \vspace*{6mm}
 }
 
-\author{Joe Bloggs}
-\submitdate{October 2008}
+\author{{\bf Alexandre Gbaguidi A\"isse}\\\vspace{3cm}Supervised by Cyril Novel}
+\submitdate{Paris, August 2018}
 
 \normallinespacing
 \maketitle
@@ -20,13 +24,13 @@
 \input{abstract/abstract}
 \input{acknowledgements/acknowledgements}
 \input{dedication/dedication}
-\input{quotes/quotes}
 
 \body
 \input{introduction/introduction}
 \input{background/background}
-
-% body of thesis comes here
+\input{scanfinder/scanfinder}
+\input{visibility/visibility}
+\input{compression/compression}
 
 \input{conclusion/conclusion}
 

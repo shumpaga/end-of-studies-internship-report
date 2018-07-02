@@ -11,11 +11,11 @@
 \def\maketitle{
   \begin{titlepage}{
     %\linespread{1.5}
-    \Large University of London \\
+      \Large EPITA--École Pour l'Informatique et les Techniques Avancées\\
+    %\linebreaik
+    CSI--Calcul Scientifique et Image\\
     %\linebreak
-    Imperial College of Science, Technology and Medicine \\
-    %\linebreak
-    Department of Computing
+    LRDE--Laboratoire de Recherche et Développement de l'EPITA
     \rm
     \vskip 3in
     \Large \bf \@title \par
@@ -23,13 +23,11 @@
   \vskip 0.3in
   \par
   {\Large \@author}
-  \vskip 4in
+  \vskip 2in
   \par
-  Submitted in part fulfilment of the requirements for the degree of 
+  Submitted in part fulfilment of the requirements for the degree of
   \linebreak
-  Doctor of Philosophy in Computing of the University of London and 
-  \linebreak
-  the Diploma of Imperial College, \@submitdate
+  Software Engineer of EPITA, \@submitdate.
   \vfil
   \end{titlepage}
 }
@@ -96,7 +94,7 @@
 }
 
 \def\body{
-    \cleardoublepage    
+    \cleardoublepage
     \pagestyle{uheadings}
     \tableofcontents
     \pagestyle{plain}
