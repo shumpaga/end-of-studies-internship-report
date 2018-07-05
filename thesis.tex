@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt,twoside]{report}
+\documentclass[a4paper,11pt,twoside]{report}
 \usepackage[left=2cm,right=2cm,top=2cm,bottom=3cm]{geometry}
 \usepackage[utf8]{inputenc}
 
@@ -8,9 +8,12 @@
 
 \include{thesis.preamble}
 
+\usepackage{amsmath}
+\newcommand{\CC }{\emph{ContextCapture$^{\text{\textbf{TM}}}$ }}
+
 \begin{document}
 
-\title{\LARGE {\bf Various contributions to ContextCapture:\\Scan Finder, Point Cloud Visibility and Point Cloud Compression}\\
+\title{\LARGE {\bf Various contributions to \CC:\\Scan Finder, Point Cloud Visibility and Point Cloud Compression}\\
  \vspace*{6mm}
 }
 
@@ -27,6 +30,7 @@
 
 \body
 \input{introduction/introduction}
+\input{bentley/bentley}
 \input{background/background}
 \input{scanfinder/scanfinder}
 \input{visibility/visibility}
