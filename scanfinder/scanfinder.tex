@@ -2,20 +2,30 @@
 \label{ch:scanfinder}
 
 \section{Specifications}
+\CC started to support point cloud reconstruction just two (2) years ago. Today it even provides a hybrid processing mode which gives the opportuniy to supplement photos of a scene with point clouds in order to have a better precision. However, a recurring problem observed among \CC users is the impossibility to use our software after losing some metadata, specifically, scanners location. This is particulary problematic because usually, \CC users subcontract point cloud
+production
+to a private company (for several thousand euro) which can charge them again for new exports (provided that they still have the point clouds). To enable customers to use their \emph{defective} point clouds, the graphic interface of \CC allows to specify scanners location by hand by positioning them in a 3D representation of the point cloud. Not surprisingly, 3D models reconstructed this way often contains errors.
 
+This is how the need for an algorithm to automatically find scanners positions in a point cloud is born. In addition, with such algorithm, \CC will have the possibility to enhance the set of supported file formats. Currently, it supports file formats such as \emph{PTX}, \emph{e57}, \emph{PLY}, \emph{POD}, each of them being able to store scanners positions. But not all file formats are able to do it. For instance, \emph{LAS} file format is not currently accepted as input because it does not provide any
+means of storing scanners location in metadata. Supporting more input file formats is an interesting point for \CC users.
 
-\subsection{Problem being addressed}
+For these reasons, the purpose here is to develop an algorithm which:
+\begin{itemize}
+\item takes as input any point cloud file format
+\item works with mono and multiscan point clouds
+\item is invariant to differences between scanners, such as: density, noise, rotation angle
+\item outputs scanners location
+\end{itemize}
 
-
-\subsection{Objective}
-
-
-\subsection{Scope}
-
+Let us precise here that as a first step, the algorithm is expected to work only with static point clouds. It would be difficult to have the same approach with static and mobile point clouds. Extending it to mobile point clouds is certainly the next step.
 
 
 \section{Related Work}
+As said in the introduction, to the best of our knowledge, there have been no previous work on the subject.
 
+\emph{Detecting the positions of multiple scanners exclusively from a point cloud is a subject not identified as interesting by academics, and thus not tackled since this information is almost always available from the outset. The same holds true on the industry side, it is only recently that scanner position information is relevant for a few applications like \CC.}
+
+The closest thing to it uses learning techniques to estimate the point of view of one particular photo based on other photos. This belongs more to the photogrametry domain than point clouds.
 
 
 \section{The faulty grid-pattern method}
