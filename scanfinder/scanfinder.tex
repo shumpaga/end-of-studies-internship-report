@@ -29,9 +29,26 @@ The closest thing to it uses learning techniques to estimate the point of view o
 
 
 \section{The grid-pattern method}
-
+This section explains one approach we tried in order to solve the problem. Before explaining the method in detail, let us first give the intuition behind this idea.
 
 \subsection{Overview}
+To understand this approach, it is important to know how a LiDAR scanner works.
+
+LiDAR is an acronym of Light Detection and Ranging. LiDAR is a remote sensing technology which uses the pulse from a laser to collect measurements. The principle is simple: it works in a similar way to Radar and Sonar but uses light waves from a laser, instead of radio or sound waves. A LiDAR system calculates how long it takes for the light to hit an object or surface and reflect back to the scanner and uses the velocity of light\footnote{The velocity, or speed of light is 299,792,458 metres
+per second} to calculate the distance. LiDAR systems can fire around 1,000,000 pulses per second. The key point here is that not only a LiDAR scanner has a constant rotation angle when turning on itself but it also have a constant vertical rotation angle when scanning the environment.
+
+These constant vertical and horizontal rotation angles reveal some grid patterns on surfaces perpendicular to the ground. Figure~\ref{fig:grid1} shows an example of a grid pattern that can be found in point clouds. The purpose here is to find, for a single grid pattern, a relation between all constant rotation angles and the scanner's position. Therefore, this relation can be applied with all possible grid patterns in the point clouds, giving a problem to solve with a huge set of
+constraints. The idea is that only the real scanner's location is able to
+explain in the best way these rotation angles.
+
+\begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.4]{img/grid1.png}
+  \caption{Example of a grid pattern}
+ \label{fig:grid1}
+\end{figure}
+
+But before building the problem to solve, it is necessary to find \emph{accurate} grid patterns in point clouds. This is the subject of the next section.
 
 
 \subsection{Grid-pattern matching}
@@ -41,7 +58,7 @@ The closest thing to it uses learning techniques to estimate the point of view o
 
 
 \subsection{Results and discussions}
-
+Not multiscan.
 
 
 \section{The elliptic method}
