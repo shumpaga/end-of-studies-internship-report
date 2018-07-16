@@ -1,5 +1,6 @@
 \chapter{Scan Finder}
 \label{ch:scanfinder}
+This chapter describes \emph{Scan Finder}, an algorithm that can be used to retrieve all scanners position of a point cloud,  if there are any, regardless of its nature. Firstly, Section~\ref{sc:spec} reviews the context which brings this need. Then, Section~\ref{sc:related} reminds that there is no previous work related to this subject. Finally, Section~\ref{sc:grid-pattern} and Section~\ref{sc:elliptic} shows two different approaches to solve the problem and discusses the results.
 
 \section{Specifications}
 \CC started to support point cloud reconstruction just two (2) years ago. Today it even provides a hybrid processing mode which gives the opportuniy to supplement photos of a scene with point clouds in order to have a better precision. However, a recurring problem observed among \CC users is the impossibility to use our software after losing some metadata, specifically, scanners location. This is particulary problematic because usually, \CC users subcontract point cloud
@@ -18,7 +19,6 @@ For these reasons, the purpose here is to develop an algorithm which:
 \end{itemize}
 
 Let us precise here that as a first step, the algorithm is expected to work only with static point clouds. It would be difficult to have the same approach with static and mobile point clouds. Extending it to mobile point clouds is certainly the next step.
-
 
 \section{Related Work}
 As said in the introduction, to the best of our knowledge, there have been no previous work on the subject.
