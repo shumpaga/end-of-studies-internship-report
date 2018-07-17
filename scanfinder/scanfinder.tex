@@ -1,22 +1,23 @@
 \chapter{Scan Finder}
 \label{ch:scanfinder}
-This chapter describes \emph{Scan Finder}, an algorithm that can be used to retrieve all scanners position of a point cloud,  if there are any, regardless of its nature. Firstly, Section~\ref{sc:spec} reviews the context which brings this need. Then, Section~\ref{sc:work} reminds that there is no previous work related to this subject. Finally, Section~\ref{sc:grid-pattern} and Section~\ref{sc:elliptic} show two different approaches to solve the problem and discuss the results.
+This chapter describes \emph{Scan Finder}, an algorithm that can be used to retrieve all scanners position of a point cloud,  if there are any, regardless of its nature. Firstly, Section~\ref{sc:spec} reviews the context which brings this need and describes some characteristics of the expected solution. Then, Section~\ref{sc:work} reminds that there is no previous work related to this subject. Finally, Section~\ref{sc:grid-pattern} and Section~\ref{sc:elliptic} show two different approaches to solve the problem and discuss the results.
 
 \section{Specifications}
 \label{sc:spec}
-\CC started to support point cloud reconstruction just two (2) years ago. Today it even provides a hybrid processing mode which gives the opportuniy to supplement photos of a scene with point clouds in order to have a better precision. However, a recurring problem observed among \CC users is the impossibility to use our software after losing some metadata, specifically, scanners location. This is particulary problematic because usually, \CC users subcontract point cloud
-production
-to a private company (for several thousand euro) which can charge them again for new exports (provided that they still have the point clouds). To enable customers to use their \emph{defective} point clouds, the graphic interface of \CC allows to specify scanners location by hand by positioning them in a 3D representation of the point cloud. Not surprisingly, 3D models reconstructed this way often contains errors.
+\subsection{Context}
+\CC started to support point cloud reconstruction just two (2) years ago. Today it even provides a hybrid processing mode which gives the opportuniy to supplement photos of a scene with point clouds in order to have a better precision. However, a recurring problem observed among \CC users is the impossibility to use the software after losing some metadata, specifically, scanners location. This is particulary problematic because usually, \CC users subcontract point cloud production to private companies (for several thousand euro) which can charge them again for new exports (provided that they still have the point clouds). To enable customers to use their \emph{defective} point clouds, the graphic interface of \CC allows to specify scanners location by hand by positioning them in a 3D representation of the point cloud. But, not surprisingly, 3D models reconstructed this way often contains errors.
 
 This is how the need for an algorithm to automatically find scanners positions in a point cloud is born. In addition, with such algorithm, \CC will have the possibility to enhance the set of supported file formats. Currently, it supports file formats such as \emph{PTX}, \emph{e57}, \emph{PLY}, \emph{POD}, each of them being able to store scanners positions. But not all file formats are able to do it. For instance, \emph{LAS} file format is not currently accepted as input because it does not provide any
-means of storing scanners location in metadata. Supporting more input file formats is an interesting point for \CC users.
+means of storing scanners location in metadata. Supporting more input file formats is also an interesting point for \CC users.
 
-For these reasons, the purpose here is to develop an algorithm which:
+\subsection{Objective}
+In summary, the purpose here is to improve \CC point cloud support in two ways: support more file formats and allow users who lose scanners location to still use their point clouds. To do so, the algorithm must:
 \begin{itemize}
-\item takes as input any point cloud file format
-\item works with mono and multiscan point clouds
-\item is invariant to differences between scanners, such as: density, noise, rotation angle
-\item outputs scanners location
+\item take as input any point cloud file format
+\item take as input monoscan and multiscan point clouds
+\item be invariant to differences between scanners, such as: density, noise, rotation angle
+\item find all scanners locations
+\item have a reasonnable running time
 \end{itemize}
 
 Let us precise here that as a first step, the algorithm is expected to work only with static point clouds. It would be difficult to have the same approach with static and mobile point clouds. Extending it to mobile point clouds is certainly the next step.
@@ -27,7 +28,7 @@ As said in the introduction, to the best of our knowledge, there have been no pr
 
 \emph{``Detecting the positions of multiple scanners exclusively from a point cloud is a subject not identified as interesting by academics, and thus not tackled since this information is almost always available from the outset. The same holds true on the industry side, it is only recently that scanner position information is relevant for a few applications like \CC."}
 
-The closest thing to it uses learning techniques to estimate the point of view of one particular photo based on other photos. But this belongs more to the photogrametry domain and therefore is not applicable in a point cloud context.
+The closest thing to it,  \cite{ml1, ml2, ml3, ml4, ml5} use learning techniques to estimate the point of view of one particular photo based on other photos. But this belongs more to the photogrametry domain and therefore is not applicable in a point cloud context.
 
 
 \section{The grid-pattern method}
@@ -35,24 +36,21 @@ The closest thing to it uses learning techniques to estimate the point of view o
 This section explains one approach we tried in order to solve the problem. Before explaining the method in detail, let us first give the intuition behind this idea.
 
 \subsection{Overview}
-To understand this approach, it is important to know how a LiDAR scanner works.
+To understand this approach, it is important to know how a LiDAR scanner works. The next paragraph is inspired by \cite{lidar}.
 
-LiDAR is an acronym of Light Detection and Ranging. LiDAR is a remote sensing technology which uses the pulse from a laser to collect measurements. The principle is simple: it works in a similar way to Radar and Sonar but uses light waves from a laser, instead of radio or sound waves. A LiDAR system calculates how long it takes for the light to hit an object or surface and reflect back to the scanner and uses the velocity of light\footnote{The velocity, or speed of light is 299,792,458 metres
-per second} to calculate the distance. LiDAR systems can fire around 1,000,000 pulses per second. The key point here is that not only a LiDAR scanner has a constant rotation angle when turning on itself but it also have a constant vertical rotation angle when scanning the environment.
+LiDAR is an acronym of Light Detection and Ranging. It is a remote sensing technology which uses the pulse from a laser to collect measurements. The principle is simple: it works in a similar way to Radar and Sonar but uses light waves from a laser, instead of radio or sound waves. A LiDAR system calculates how long it takes for the light to hit an object or surface and reflect back to the scanner and then, uses the velocity of light\footnote{The velocity, or speed of light is 299,792,458 metres per second.} to calculate the distance. LiDAR systems can fire around 1,000,000 pulses per second. The key point here is that not only a LiDAR scanner has a constant rotation angle when turning on itself but it also have a constant vertical rotation angle when scanning the environment.
 
-These constant vertical and horizontal rotation angles reveal some grid patterns on surfaces perpendicular to the ground. Figure~\ref{fig:grid1} shows an example of a grid pattern that can be found in point clouds. The purpose here is to find, for a single grid pattern, a relation between all constant rotation angles and the scanner's position. Therefore, this relation can be applied with all possible grid patterns in the point clouds, giving a problem to solve with a huge set of
-constraints. The idea is that only the real scanner's location is able to
-explain in the best way these rotation angles.
+These constant vertical and horizontal rotation angles reveal some grid patterns on surfaces perpendicular to the ground\footnote{To be precise, perpendicular to the surface on which the scanner is installed.}. Figure~\ref{fig:grid1} shows an example of a grid pattern that can be found in point clouds. The purpose here is to find, for a single grid pattern, a relation between all constant rotation angles and the scanner's position. Therefore, this relation can be applied with all possible grid patterns in the point clouds, leading to a problem with a huge set of
+constraints to solve. The idea is that only the real scanner's location is able to explain in the best way these rotation angles.
 
 \begin{figure}[H]
  \centering
- \includegraphics[scale=0.4]{img/grid1.png}
-  \caption{Example of a grid pattern}
+ \includegraphics[scale=0.5]{img/grid1.png}
+ \caption{Example of a grid pattern. As you can see there is a constant offset between each vertical line and each horizontal lines. Note that the offset between columns is not necessary the same than between lines.}
  \label{fig:grid1}
 \end{figure}
 
-But before building the problem to solve, it is necessary to find \emph{accurate} grid patterns in point clouds. This is the subject of the next section.
-
+This algorithm can be divided into two parts. The first step is to find \emph{accurate} grid patterns in point clouds. Once this is done, the second step is to build the equation that will be solved. These two parts are explained in the following subsections.
 
 \subsection{Grid-pattern matching}
 
