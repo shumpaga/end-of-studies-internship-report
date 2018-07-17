@@ -1,20 +1,33 @@
 \chapter{Basic Concepts}
 \label{ch:background}
-
 This chapter introduces the necessary concepts and definitions for a better understanding of the report.
 
 \section{Point Cloud}
-Definition of point and its fields.
-Definition of point cloud.
+\begin{definition}{: Point}
+  \\A point $p_i$ is a tuple $\left\langle x_i, y_i, z_i, \vec{n}_i \right\rangle$ where:
+  \begin{itemize}
+    \item $i$ is an unique integer identifying $p_i$,
+    \item $x_i$, $y_i$ and $z_i$ are the coordinates of $p_i$,
+    \item $\vec{n}_i$ is the normal at $p_i$.
+  \end{itemize}
+\end{definition}
 
-\section{Geometric operations}
-\subsection{Translation}
-\subsection{Rotation}
-\subsection{Projection ??}
+\begin{definition}{: Point Cloud}
+  \\A point cloud $P$ of size $n$ is a set $P = \left\lbrace p_i \mid i \in [0, n]  \right\rbrace$
+\end{definition}
 
-\section{Traditionnal algorithms}
 
-\subsection{PCA}
+\section{Some algorithms}
+
+\section{Principal Component Analysis (PCA)}
+
+PCA is a common algorithm of data analysis. It is used to project data into a space with reduced dimension while keeping the most relevant information -- the directions where there is the most variance, where the data is most spread out.
+
+
+\begin{definition}{: Principal Component Analysis (PCA)}
+\end{definition}
+
+
 \subsection{Least Square Solving}
 \subsubsection{Linear}
 \subsubsection{Non-linear}
@@ -22,4 +35,8 @@ Talk about Ceres solver?
 
 \subsection{RANSAC}
 
-Text of the Background.
+
+\section{Geometric operations}
+\subsection{Translation}
+\subsection{Rotation}
+\subsection{Projection ??}
