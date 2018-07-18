@@ -13,7 +13,7 @@ This chapter introduces the necessary concepts and definitions for a better unde
 \end{definition}
 
 \begin{definition}{: Point Cloud}
-  \\A point cloud $P$ of size $n$ is a set $P = \left\lbrace p_i \mid i \in [0, n]  \right\rbrace$
+  \\A point cloud $P$ of size $s$ is a set $P = \left\lbrace p_i \mid i \in [0, s]  \right\rbrace$
 \end{definition}
 
 
@@ -21,11 +21,24 @@ This chapter introduces the necessary concepts and definitions for a better unde
 
 \section{Principal Component Analysis (PCA)}
 
-PCA is a common algorithm of data analysis. It is used to project data into a space with reduced dimension while keeping the most relevant information -- the directions where there is the most variance, where the data is most spread out.
+PCA is a common algorithm of data analysis. It is used to project data with $n$ dimensions into a space with reduced dimensions while keeping the most relevant information -- the directions where there is the most variance, where the data is most spread out. As its name suggests, it finds the principal components from the most important to the less one. We say that the first principal component is a rotation of $x$-axis to maximize the variance of the data projected onto it and the last axis (component) is the one with less variance, with redundant information.
 
+We are not going to explain in detail what a PCA is as it is very common and not the core of our work here. But let us remind the methodology.
 
 \begin{definition}{: Principal Component Analysis (PCA)}
+\\ Let $P_a$ be a set of points of size $s_a$. To perform \textit{PCA($P_a$):}
+\begin{itemize}
+\item we compute the centroid of $P_a$, noted $\bar{p_a}$
+\item we compute the covariance matrix $C$ which is the symetric $3 \times 3$ positive semi-definite matrix:
+\begin{equation*}
+C = \sum_{p \in P_a} (p - \bar{p_a}) \otimes (p - \bar{p_a}) \text{,       where $\otimes$ denotes the outer product vector operator.}
+\end{equation*}
+\item we compute the eigenvalues of $C$ with their corresponding eigenvectors. The eigenvector $\vec{v}_1$  associated with the greatest eigenvalue $\lambda_1$  is the principal component axis. And the axis having less variation of data, when it is projected onto it is $\vec{v}_3$ ; the one associated with the lowest eigenvalue $\lambda_3$.
+\item we return a pair of $\left\langle \mu, \vec{v}_3 \right\rangle$ where $\mu = \frac{\lambda_3}{\lambda_1 + \lambda_2 + \lambda_3}$ can be used as a confidence level. The smaller it is, the more $\vec{v}_1$ and $\vec{v}_2$  explain on their own our data.
+\end{itemize}
 \end{definition}
+
+In \cite{hoppe}, Hoppe et al. use PCA to determine the normal of a tangent plane. Similarly in this report, we use PCA for two purposes: find the normal's direction of a plane and find the normal's direction at a point. If a set of points forms a plane, we choose its normal to be either $\vec{v}_3$ or $-\vec{v}_3$. It is the direction with less data variation and in a perfect word, that is a perfect plane alignment, the projection of all points onto it gives the same value. This means that  $\mu = 0$. Now if $P_a$ is formed of $p_i$ and its $k$-neighbouring points, then $\vec{v}_3$ or $-\vec{v}_3$ is the normal at $p_i$. We empirically deduced fifty (50) to be the ideal value for $k$.
 
 
 \subsection{Least Square Solving}

@@ -5,22 +5,21 @@ This chapter describes \emph{Scan Finder}, an algorithm that can be used to retr
 \section{Specifications}
 \label{sc:spec}
 \subsection{Context}
-\CC started to support point cloud reconstruction just two (2) years ago. Today it even provides a hybrid processing mode which gives the opportuniy to supplement photos of a scene with point clouds in order to have a better precision. However, a recurring problem observed among \CC users is the impossibility to use the software after losing some metadata, specifically, scanners location. This is particulary problematic because usually, \CC users subcontract point cloud production to private companies (for several thousand euro) which can charge them again for new exports (provided that they still have the point clouds). To enable customers to use their \emph{defective} point clouds, the graphic interface of \CC allows to specify scanners location by hand by positioning them in a 3D representation of the point cloud. But, not surprisingly, 3D models reconstructed this way often contains errors.
+\CC started to support point cloud reconstruction two (2) years ago. Today it even provides a hybrid processing mode which gives the opportuniy to combine the best of both words, photos and point clouds, in order to have a better precision. However, a recurring problem observed among \CC users is the impossibility to use the software after losing some metadata, specifically, scanners location. This is particulary problematic because usually, \CC users subcontract point cloud production to private companies which can charge them again for new exports (provided that they still have the point clouds). To enable customers to use their \emph{defective} point clouds, the graphic interface of \CC allows to specify a scanner location by hand by positioning it in a 3D representation of the point cloud. But, it does not work with merged scans; only one scanner location can be specified. Usually, users do not know the location and even if they know, the reconstruction is subjected to too much errors.
 
-This is how the need for an algorithm to automatically find scanners positions in a point cloud is born. In addition, with such algorithm, \CC will have the possibility to enhance the set of supported file formats. Currently, it supports file formats such as \emph{PTX}, \emph{e57}, \emph{PLY}, \emph{POD}, each of them being able to store scanners positions. But not all file formats are able to do it. For instance, \emph{LAS} file format is not currently accepted as input because it does not provide any
-means of storing scanners location in metadata. Supporting more input file formats is also an interesting point for \CC users.
+This is how the need for an algorithm to automatically find scanners positions in a point cloud is born. In addition, with such algorithm, \CC will have the possibility to enhance the set of supported file formats. Currently, it supports file formats such as \emph{PTX}, \emph{e57}, \emph{PLY}, \emph{POD}, each of them being able to store scanners positions. But not all file formats are able to do it. For instance, \emph{LAS} file format is not currently accepted as input because it does not provide any means of storing scanners location in metadata. Supporting more input file formats is also a good point of interest for \CC users.
 
 \subsection{Objective}
 In summary, the purpose here is to improve \CC point cloud support in two ways: support more file formats and allow users who lose scanners location to still use their point clouds. To do so, the algorithm must:
 \begin{itemize}
-\item take as input any point cloud file format
-\item take as input monoscan and multiscan point clouds
-\item be invariant to differences between scanners, such as: density, noise, rotation angle
-\item find all scanners locations
-\item have a reasonnable running time
+\item take as input any 3D point cloud captured from static scanners,
+\item be invariant to the number of scanners in the point cloud,
+\item be invariant to differences between scanners, such as: density, noise, rotation angle,
+\item find all scanners locations,
+\item have a reasonnable running time.
 \end{itemize}
 
-Let us precise here that as a first step, the algorithm is expected to work only with static point clouds. It would be difficult to have the same approach with static and mobile point clouds. Extending it to mobile point clouds is certainly the next step.
+Let us emphasize here that as a first step, the algorithm is expected to work only with static point clouds. It would be difficult to have the same approach with static and mobile point clouds. Extending it to mobile point clouds is certainly the next step.
 
 \section{Related Work}
 \label{sc:work}
@@ -28,7 +27,7 @@ As said in the introduction, to the best of our knowledge, there have been no pr
 
 \emph{``Detecting the positions of multiple scanners exclusively from a point cloud is a subject not identified as interesting by academics, and thus not tackled since this information is almost always available from the outset. The same holds true on the industry side, it is only recently that scanner position information is relevant for a few applications like \CC."}
 
-The closest thing to it,  \cite{ml1, ml2, ml3, ml4, ml5} use learning techniques to estimate the point of view of one particular photo based on other photos. But this belongs more to the photogrametry domain and therefore is not applicable in a point cloud context.
+The closest publications on the topic are \cite{ml1, ml2, ml3, ml4, ml5}. They use learning techniques to estimate the point of view of one particular photo based on other photos. But this belongs more to the photogrametry domain and therefore is not applicable in a point cloud context.
 
 
 \section{The grid-pattern method}
@@ -50,13 +49,17 @@ constraints to solve. The idea is that only the real scanner's location is able 
  \label{fig:grid1}
 \end{figure}
 
-This algorithm can be divided into two parts. The first step is to find \emph{accurate} grid patterns in point clouds. Once this is done, the second step is to build the equation that will be solved. These two parts are explained in the following subsections.
+The \emph{ScanFinder} algorithm can be divided into two parts. The first step is to find \emph{accurate} grid patterns in point clouds. Once this is done, the second step is to build the equation that will be solved. These two parts are explained in the following subsections.
 
 \subsection{Grid-pattern matching}
+This subsection explains how to find \emph{accurate} grid patterns in point clouds in order to reduce as much as possible the noise and its impact during the problem resolution described in Section~\ref{subsc:eq}.
 
+A set of point is considered as an \emph{accurate} grid-pattern when:
+\begin{itemize}
+\end{itemize}
 
 \subsection{Equation to solve}
-
+\label{subsc:eq}
 
 \subsection{Results and discussions}
 Not multiscan.
