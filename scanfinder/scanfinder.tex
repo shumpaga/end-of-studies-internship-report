@@ -56,7 +56,45 @@ This subsection explains how to find \emph{accurate} grid patterns in point clou
 
 A set of point is considered as an \emph{accurate} grid-pattern when:
 \begin{itemize}
+\item it is planar as much as possible\footnote{Because of the noise.},
+\item the underlying plannar surface is orthogonal to the surface of the ground,
+\item the gap between columns is consistent enough,
+\item the gap between lines is consistent enough.
 \end{itemize}
+
+
+\begin{algorithm}[tb]
+  \SetAlgoVlined
+  \DontPrintSemicolon
+  \SetKw{Report}{report}
+  \SetArgSty{}
+  \SetKwFunction{GetSomePatch}{GetSomePatch}
+  \SetKwProg{Fn}{Function}{}{}
+  \Fn{\GetSomePatch{P}}{
+    \KwIn{a pointcloud $P = \left\lbrace p_i \mid i \in [0, s]  \right\rbrace$}
+    \KwOut{a set of potential grid-pattern patches}
+    \For{$i = 0;\ i < s;\ i = i + 1$}{
+    $neighs\gets$ 50 closest neighbours of $i$
+    }
+ 
+
+
+$R\gets\emptyset$\;
+$visited\gets\emptyset$\;
+\For{$i = 0;\ i < s;\ i = i + 1$}{
+  \If{$i \in visited$}
+    {\Continue}
+
+    Do something\;
+  }
+
+
+    \Return{$T_B$}\;
+  }
+  \caption{Converting a DTRA into an equivalent DTBA when it exists.\label{alg:DTRA2DTBA}}
+\end{algorithm}
+
+
 
 \subsection{Equation to solve}
 \label{subsc:eq}
