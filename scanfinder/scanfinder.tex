@@ -68,9 +68,9 @@ A set of point is considered as an \emph{accurate} grid-pattern when:
   \DontPrintSemicolon
   \SetKw{Report}{report}
   \SetArgSty{}
-  \SetKwFunction{GetSomePatch}{GetSomePatch}
+  \SetKwFunction{GetPlanarPatches}{GetPlanarPatches}
   \SetKwProg{Fn}{Function}{}{}
-  \Fn{\GetSomePatch{P}}{
+  \Fn{\GetPlanarPatches{P}}{
     \KwIn{a pointcloud $P = \left\lbrace p_i \mid i \in [0, s]  \right\rbrace$.}
     \KwOut{a set of potential grid-pattern patches.}
     \;
@@ -106,10 +106,14 @@ A set of point is considered as an \emph{accurate} grid-pattern when:
     \;
     \Return{$R$}\;
   }
-  \caption{Find various set of potential grid-pattern patches in a point cloud.
-    \label{alg:GetSomePatch}}
+  \caption{Find various no-overlaping planar patches in a point cloud.
+    \label{alg:GetPlanarPatches}}
 \end{algorithm}
 
+Algorithm~\ref{alg:GetPlanarPatches} shows how to extract some planar patches in a point cloud. A preprocessing step is to compute for each point of the point cloud, the normal and its \emph{confidence level}. This \emph{confidence level} plays a key role in the algorithm as it tells which area are likely to be planar. Therefore, by browsing all points, each time we find a point with a good \emph{confidence level} ($> 0.001$), we start to build a patch around it. To do so, we extract its 50
+closest neighbours and consider only those having their normal almost colinear to the normal of the starting point. If the size of the obtained set is bigger enough ($>\ 0.9 \times 200$), we keep it. Also, in order to avoid overlaping or too close patches, we keep track of visited points.
+
+Although planar, this set of patches potentially contains: \textbf{(a)} patches whose underlying surfaces are not orthogonal to the surface of the ground and \textbf{(b)} patches without grid patterns. To filter out each \textbf{(a)} patch, we just use a dot product between its normal and the normal of the high-density area, which contains inevitably the scanner location (Section~\ref{subsc:highdens}).
 
 
 \subsection{Equation to solve}
@@ -126,7 +130,7 @@ Not multiscan.
 
 
 \subsection{Clustering high-density area}
-
+\label{subsc:highdens}
 
 \subsection{Fitting ellipse}
 
