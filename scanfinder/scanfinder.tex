@@ -1,6 +1,9 @@
 \chapter{Scan Finder}
 \label{ch:scanfinder}
-This chapter describes \emph{Scan Finder}, an algorithm that can be used to retrieve all scanners position of a point cloud,  if there are any, regardless of its nature. Firstly, Section~\ref{sc:spec} reviews the context which brings this need and describes some characteristics of the expected solution. Then, Section~\ref{sc:work} reminds that there is no previous work related to this subject. Finally, Section~\ref{sc:grid-pattern} and Section~\ref{sc:elliptic} show two different approaches to solve the problem and discuss the results.
+This chapter describes \emph{Scan Finder}, an algorithm that can be used to retrieve all scanners position of a point cloud,  if there are any, regardless of its nature. Firstly, Section~\ref{sc:spec} reviews the context which brings this need and describes some characteristics of the expected solution. Then, Section~\ref{sc:work} reminds that there is no previous work related to this subject. Finally, Section~\ref{sc:highdens} describes a first step toward scanner location
+finding before showing and discussing the results of two different approaches in Section~\ref{sc:grid-pattern} and Section~\ref{sc:elliptic}. To be clear, Section~\ref{sc:highdens} is a common first step to both methods.
+
+
 
 \section{Specifications}
 \label{sc:spec}
@@ -21,6 +24,8 @@ In summary, the purpose here is to improve \CC point cloud support in two ways: 
 
 Let us emphasize here that as a first step, the algorithm is expected to work only with static point clouds. It would be difficult to have the same approach with static and mobile point clouds. Extending it to mobile point clouds is certainly the next step.
 
+
+
 \section{Related Work}
 \label{sc:work}
 As said in the introduction, to the best of our knowledge, there have been no previous work on the subject.
@@ -30,17 +35,60 @@ As said in the introduction, to the best of our knowledge, there have been no pr
 The closest publications on the topic are \cite{ml1, ml2, ml3, ml4, ml5}. They use learning techniques to estimate the point of view of one particular photo based on other photos. But this belongs more to the photogrametry domain and therefore is not applicable in a point cloud context.
 
 
+
+\section{Clustering high-density area}
+\label{sc:highdens}
+This section explains a common first step to methods described in Section~\ref{sc:grid-pattern} and Section~\ref{sc:elliptic}. For a better understanding, a quick introduction to LiDAR scanners is necessary.
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=1]{img/lidar.jpg}
+  \caption{Example of a LiDAR scanner.}
+  \label{fig:lidar}
+\end{figure}
+
+
+\subsection{LiDAR scanner and context}
+\label{subsc:lidar}
+LiDAR is an acronym of Light Detection and Ranging. It is a remote sensing technology which uses the pulse from a laser to collect measurements. The principle is simple: it works in a similar way to Radar and Sonar but uses light waves from a laser, instead of radio or sound waves. A LiDAR system calculates how long it takes for the light to hit an object or surface and reflect back to the scanner and then, uses the velocity of light\footnote{The velocity, or speed of light is 299,792,458 metres
+per second.} to calculate the distance. LiDAR systems can fire around 1,000,000 pulses per second. This paragraph is inspired by \cite{lidar}.
+
+Whe scanning, there are two kind of rotations that a LiDAR scanner performs. They are indicated by black arrows in Figure~\ref{fig:lidar}. Not only a LiDAR scanner has a constant rotation angle when turning on itself but it also has a constant vertical rotation angle when scanning the environment. Because of these constant rotation angles, the further we go, the lower the point density is. On the contrary, the closer to the scanner we are, the higher the point density is. This density variation can be observed in
+Figure~\ref{fig:density}. To conclude, extract the most concentrated area is intersting because it reduces the global search area.
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=1]{img/lidar.jpg}
+  \caption{Variation of density as we go further away from the source.}
+  \label{fig:density}
+\end{figure}
+
+
+\subsection{The algorithm}
+\begin{figure}
+  \centering
+  \includegraphics[scale=1]{img/lidar.jpg}
+  \caption{Result of high density extraction on several point clouds.}
+  \label{fig:highdens}
+\end{figure}
+
+The first step of the algorithm is to detect high density regions in the point cloud. For each point, we compute its density based on the mean distance to its $k$ neighbors ($k \in [15,50]$). We extract high density regions by selecting a percentage of the densest points (percentage between 1 and 5\%). Figure~\ref{fig:highdens} shows some results of this high density point extraction. As you can see, they always contain the scanner. Note that the scanner is not able to scan below himself leading to an elliptic form\footnote{This elliptic form is the key point of the method described in Section~\ref{sc:elliptic}.} appearing in all point clouds.
+
+Once these points are extracted, a clustering step is applied. The clustering is needed so that points from the point clouds corresponding to potentially different parts of the scene around the scanner can be separated. For each point, we compute its non-oriented normal based on its local neighborhood. Then, as long as points are not attributed to a cluster, we select the point on the flattest surface, and iteratively add its neighbors that share a coherent normal orienta-tion (the dot product of the two normals must be superior to 0.8 in our experiments).
+
+Once every point is clustered, we discard clusters with too few points (in our experiments, we use a threshold of 0.2\% of the number of high density points). We then detect clusters that are circular. A cluster is considered circular if its centroid, i.e. the average of all the points it contains, is far away from the points of the cluster.
+
+At this point, we have computed a coarse location of the scanner. Methods described in Section~\ref{sc:grid-pattern} and Section~\ref{sc:elliptic} use it in their own way in order to find scanner locations.
+
+
+
 \section{The grid-pattern method}
 \label{sc:grid-pattern}
 This section explains one approach we tried in order to solve the problem. Before explaining the method in detail, let us first give the intuition behind this idea.
 
 \subsection{Overview}
-To understand this approach, it is important to know how a LiDAR scanner works. The next paragraph is inspired by \cite{lidar}.
-
-LiDAR is an acronym of Light Detection and Ranging. It is a remote sensing technology which uses the pulse from a laser to collect measurements. The principle is simple: it works in a similar way to Radar and Sonar but uses light waves from a laser, instead of radio or sound waves. A LiDAR system calculates how long it takes for the light to hit an object or surface and reflect back to the scanner and then, uses the velocity of light\footnote{The velocity, or speed of light is 299,792,458 metres per second.} to calculate the distance. LiDAR systems can fire around 1,000,000 pulses per second. The key point here is that not only a LiDAR scanner has a constant rotation angle when turning on itself but it also have a constant vertical rotation angle when scanning the environment.
-
-These constant vertical and horizontal rotation angles reveal some grid patterns on surfaces perpendicular to the ground\footnote{To be precise, perpendicular to the surface on which the scanner is installed.}. Figure~\ref{fig:grid1} shows an example of a grid pattern that can be found in point clouds. The purpose here is to find, for a single grid pattern, a relation between all constant rotation angles and the scanner's position. Therefore, this relation can be applied with all possible grid patterns in the point clouds, leading to a problem with a huge set of
-constraints to solve. The idea is that only the real scanner's location is able to explain in the best way these rotation angles.
+As said in Section~\ref{subsc:lidar}, LiDAR scanners perfom two kind of rotations. These constant vertical and horizontal rotation angles reveal some grid patterns on surfaces perpendicular to the ground\footnote{To be precise, perpendicular to the surface on which the scanner is installed.}. Figure~\ref{fig:grid1} shows an example of a grid pattern that can be found in point clouds. The purpose here is to find, for a single grid pattern, a relation between all constant rotation angles and the scanner's position. Therefore, this relation can be applied with all possible grid patterns in the point clouds, leading to a problem with a huge set of
+constraints to solve. The idea is that only the real scanner's location is able to explain in the best way these constant rotation angles.
 
 \begin{figure}[H]
   \centering
@@ -49,12 +97,10 @@ constraints to solve. The idea is that only the real scanner's location is able 
   \label{fig:grid1}
 \end{figure}
 
-The \emph{ScanFinder} algorithm can be divided into two parts. The first step is to find \emph{accurate} grid patterns in point clouds. Once this is done, the second step is to build the equation that will be solved. These two parts are explained in the following subsections.
+This algorithm can be divided into two parts. The first step is to find \emph{accurate} grid patterns in point clouds. Once this is done, the second step is to build the equation that will be solved. These two parts are explained in the following subsections.
 
 \subsection{Grid-pattern matching}
-This subsection explains how to find \emph{accurate} grid patterns in point clouds in order to reduce as much as possible the noise and its impact during the problem resolution described in Section~\ref{subsc:eq}.
-
-A set of point is considered as an \emph{accurate} grid-pattern when:
+This subsection explains how to find \emph{accurate} grid patterns in point clouds in order to reduce as much as possible the noise and its impact during the problem resolution described in Section~\ref{subsc:eq}. A set of point is considered as an \emph{accurate} grid-pattern when:
 \begin{itemize}
   \item it is planar as much as possible\footnote{Because of the noise.},
   \item the underlying planar surface is orthogonal to the surface of the ground,
@@ -111,9 +157,9 @@ A set of point is considered as an \emph{accurate} grid-pattern when:
 \end{algorithm}
 
 Algorithm~\ref{alg:GetPlanarPatches} shows how to extract some planar patches in a point cloud. A preprocessing step is to compute for each point of the point cloud, the normal and its \emph{confidence level}. This \emph{confidence level} plays a key role in the algorithm as it tells which area are likely to be planar. Therefore, by browsing all points, each time we find a point with a good \emph{confidence level} ($> 0.001$), we start to build a patch around it. To do so, we extract its 50
-closest neighbours and consider only those having their normal almost colinear to the normal of the starting point. If the size of the obtained set is bigger enough ($>\ 0.9 \times 200$), we keep it. Also, in order to avoid overlaping or too close patches, we keep track of visited points.
+closest neighbours and consider only those having their normal almost colinear to the normal of the starting point. If the size of the obtained set is bigger enough ($>\ 0.9 \times 200$), the set is kept and otherwise, not. Also, in order to avoid overlaping or patches too close, we keep track of visited points.
 
-Although planar, this set of patches potentially contains: \textbf{(a)} patches whose underlying surfaces are not orthogonal to the surface of the ground and \textbf{(b)} patches without grid patterns. To filter out each \textbf{(a)} patch, we just use a dot product between its normal and the normal of the high-density area, which contains inevitably the scanner location (Section~\ref{subsc:highdens}).
+Although planar, this set of patches potentially contains: \textbf{(a)} patches whose underlying surfaces are not orthogonal to the surface of the ground and \textbf{(b)} patches without grid patterns. To filter out each \textbf{(a)} patch, we use a dot product between its normal and the normal of the circular cluster in the high-density area\footnote{The circular cluster desribes the surface on which the scanner is positioned.} (Section~\ref{sc:highdens}).
 
 
 \subsection{Equation to solve}
@@ -128,9 +174,6 @@ Not multiscan.
 
 \subsection{Overview}
 
-
-\subsection{Clustering high-density area}
-\label{subsc:highdens}
 
 \subsection{Fitting ellipse}
 
