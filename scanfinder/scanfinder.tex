@@ -12,11 +12,11 @@ This is how the need for an algorithm to automatically find scanners positions i
 \subsection{Objective}
 In summary, the purpose here is to improve \CC point cloud support in two ways: support more file formats and allow users who lose scanners location to still use their point clouds. To do so, the algorithm must:
 \begin{itemize}
-\item take as input any 3D point cloud captured from static scanners,
-\item be invariant to the number of scanners in the point cloud,
-\item be invariant to differences between scanners, such as: density, noise, rotation angle,
-\item find all scanners locations,
-\item have a reasonnable running time.
+  \item take as input any 3D point cloud captured from static scanners,
+  \item be invariant to the number of scanners in the point cloud,
+  \item be invariant to differences between scanners, such as: density, noise, rotation angle,
+  \item find all scanners locations,
+  \item have a reasonnable running time.
 \end{itemize}
 
 Let us emphasize here that as a first step, the algorithm is expected to work only with static point clouds. It would be difficult to have the same approach with static and mobile point clouds. Extending it to mobile point clouds is certainly the next step.
@@ -43,10 +43,10 @@ These constant vertical and horizontal rotation angles reveal some grid patterns
 constraints to solve. The idea is that only the real scanner's location is able to explain in the best way these rotation angles.
 
 \begin{figure}[H]
- \centering
- \includegraphics[scale=0.5]{img/grid1.png}
- \caption{Example of a grid pattern. As you can see there is a constant offset between each vertical line and each horizontal lines. Note that the offset between columns is not necessary the same than between lines.}
- \label{fig:grid1}
+  \centering
+  \includegraphics[scale=0.5]{img/grid1.png}
+  \caption{Example of a grid pattern. As you can see there is a constant offset between each vertical line and each horizontal lines. Note that the offset between columns is not necessary the same than between lines.}
+  \label{fig:grid1}
 \end{figure}
 
 The \emph{ScanFinder} algorithm can be divided into two parts. The first step is to find \emph{accurate} grid patterns in point clouds. Once this is done, the second step is to build the equation that will be solved. These two parts are explained in the following subsections.
@@ -56,10 +56,10 @@ This subsection explains how to find \emph{accurate} grid patterns in point clou
 
 A set of point is considered as an \emph{accurate} grid-pattern when:
 \begin{itemize}
-\item it is planar as much as possible\footnote{Because of the noise.},
-\item the underlying plannar surface is orthogonal to the surface of the ground,
-\item the gap between columns is consistent enough,
-\item the gap between lines is consistent enough.
+  \item it is planar as much as possible\footnote{Because of the noise.},
+  \item the underlying planar surface is orthogonal to the surface of the ground,
+  \item the gap between columns is consistent enough,
+  \item the gap between lines is consistent enough.
 \end{itemize}
 
 
@@ -71,27 +71,43 @@ A set of point is considered as an \emph{accurate} grid-pattern when:
   \SetKwFunction{GetSomePatch}{GetSomePatch}
   \SetKwProg{Fn}{Function}{}{}
   \Fn{\GetSomePatch{P}}{
-    \KwIn{a pointcloud $P = \left\lbrace p_i \mid i \in [0, s]  \right\rbrace$}
-    \KwOut{a set of potential grid-pattern patches}
+    \KwIn{a pointcloud $P = \left\lbrace p_i \mid i \in [0, s]  \right\rbrace$.}
+    \KwOut{a set of potential grid-pattern patches.}
+    \;
+    \tcc{We compute the normal of each point and keep both confidence level and normal $\left\langle \mu_i, \vec{v}_i \right\rangle$.}
+    \tcc{See Section~\ref{subsc:pca} for more details on PCA algorithm.}
+    \tcc{From here, $\forall i \in [0, s]$ we assume $\vec{v}_i$ to be the normal at $i$ and $\mu_i$ its confidence level.}
     \For{$i = 0;\ i < s;\ i = i + 1$}{
-    $neighs\gets$ 50 closest neighbours of $i$
+      $\left\langle \mu_i, \vec{v}_i \right\rangle \gets PCA($50 closest neighbours of $i)$\;
     }
- 
+    \;
+    $R\gets\emptyset$\;
+    visited $\gets\emptyset$\;
+    \For{$i = 0;\ i < s;\ i = i + 1$}{
+      \tcc{ Continue if already visited or is not planar enough.}
+      \If{$i \in$ visited or $\mu_i > 0.001$}
+      {\Continue}
+      \;
 
-
-$R\gets\emptyset$\;
-$visited\gets\emptyset$\;
-\For{$i = 0;\ i < s;\ i = i + 1$}{
-  \If{$i \in visited$}
-    {\Continue}
-
-    Do something\;
+      tmp $\gets \left\lbrace p_i \right\rbrace$\;
+      \ForEach{$j \in $ 50 closest neighbours of $i$}{
+        \tcc{If $i$ and $j$ normals are almost colinear and $j$ has not been seen yet.}
+        \If{abs($\vec{v}_j \times \vec{v}_i$) $> 0.9$ and $j \not\in$ visited}{
+          tmp $\gets$ tmp $\cup\ p_j$\;
+          visited $\gets$ visited $\cup\ j$\;
+        }
+      }
+      \;
+      \tcc{If there is enough point for a grid-pattern patch.}
+      \If{size of tmp $> 0.9\ \times$ 200}{
+        $R \gets R\ \cup $ tmp
+      }
+    }
+    \;
+    \Return{$R$}\;
   }
-
-
-    \Return{$T_B$}\;
-  }
-  \caption{Converting a DTRA into an equivalent DTBA when it exists.\label{alg:DTRA2DTBA}}
+  \caption{Find various set of potential grid-pattern patches in a point cloud.
+    \label{alg:GetSomePatch}}
 \end{algorithm}
 
 
