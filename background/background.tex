@@ -41,10 +41,30 @@ C = \sum_{p \in P_a} (p - \bar{p_a}) \otimes (p - \bar{p_a}) \text{,       where
 In \cite{hoppe}, Hoppe et al. use PCA to determine the normal of a tangent plane. Similarly in this report, we use PCA for two purposes: find the normal's direction of a plane and find the normal's direction at a point. If a set of points forms a plane, we choose its normal to be either $\vec{v}_3$ or $-\vec{v}_3$. It is the direction with less data variation and in a perfect word, that is a perfect plane alignment, the projection of all points onto it gives the same value. This means that  $\mu = 0$. Now if $P_a$ is formed of $p_i$ and its $k$-neighbouring points, then $\vec{v}_3$ or $-\vec{v}_3$ is the normal at $p_i$. We empirically deduced fifty (50) to be the ideal value for $k$.
 
 
-\subsection{Least Square Solving}
+\subsection{Least Square Methods}
+\label{subsc:least}
+Least Square solving is a usual approach of regression analysis to approximate the solution of overdetermined systems (with more equations than unknowns). The problem can be described as follows. Let us assume a model of the form
+\begin{equation}
+  y = f(z; x_1; ..., x_n)
+  \label{eq:leastmodel}
+\end{equation}
+where $f$ describes a relation between $x_1, ..., x_n$, $z$ is the control variable and $y$ is the expected response to $z$. After $m$ experiments, $(m \geq n)$, $m$ observed quantities $(z_i, y_i), i \in [1, m]$ are collected. The purpose therfore is to find the paramaters $x_1, ..., x_n$ so that all $z_i, y_i$ satisfy at best (\ref{eq:leastmodel}) . ``Least squares" means that the overall solution minimizes the sum of the squares of the residuals made in the results of every single equation.
+The most important application is in data fitting. The best fit in the least-squares sense minimizes the sum of squared residuals, a residual being: the difference between an observed value, and the fitted value provided by a model.
+
+Least-squares fall into two categories: linear and non-linear least squares, depending on whether or not the residuals are linear in all unknowns.
+
 \subsubsection{Linear}
+To solve linear least square problems, we use the Eigen library~\cite{eigenweb}. Consider an overdetermined system of equations, say $Ax = b$. Although it has no precise solution, it makes sense to search for the vector $x$ which is closest to being a solution, in the sense that the difference $Ax - b$ is as small as possible. This $x$ is called the least square solution (if the Euclidean norm is used). Provide Eigen with $A$ and $b$ and it will approximate the solution $x$.
+
 \subsubsection{Non-linear}
-Talk about Ceres solver?
+In case of non-linear least square problems, we use the Ceres Solver~\cite{ceres}. Ceres Solver is an open source C++ library for modeling and solving large, complicated optimization problems. Ceres can solve bounds constrained robustified non-linear least squares problems of the form:
+\begin{equation*}
+  \min_{x}\ \ \frac{1}{2} \sum_{i} \rho_i \left(\left\lVert f_i(x_{i_1}, ..., x_{i_k})  \right\rVert^2 \right) \text{, such that  } l_j \leq x_j \leq u_j
+\end{equation*}
+
+Ceres solver considers the expression $\rho_i \left(\left\lVert f_i(x_{i_1}, ..., x_{i_k})  \right\rVert^2 \right)$ as a \emph{Residual Block}, where $f_i(.)$ is a \emph{Cost function} that depends on the parameter blocks $[x_{i_1}, ..., x_{i_k}]$.
+We only need to specify the parameters, write the \emph{Cost function} and Ceres does the job.
+
 
 \subsection{RANSAC}
 

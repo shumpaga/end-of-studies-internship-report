@@ -22,7 +22,18 @@
 \usepackage{enumitem}
 \usepackage{amssymb}
 
+\usepackage{listings}
 \usepackage{xcolor}
+\lstset{language=C++,
+        backgroundcolor = \color{lightgray},
+        framexleftmargin = 1em,
+        basicstyle=\linespread{1}\small\ttfamily,
+        keywordstyle=\color{blue}\ttfamily,
+        stringstyle=\color{red}\ttfamily,
+        commentstyle=\color{green}\ttfamily,
+        morecomment=[l][\color{magenta}]{\#}
+}
+
 \newcommand\mycommfont[1]{\footnotesize\ttfamily\textcolor{blue}{#1}}
 \SetCommentSty{mycommfont}
 
