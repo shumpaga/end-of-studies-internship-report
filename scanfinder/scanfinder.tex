@@ -201,12 +201,13 @@ Once only \emph{accurate} patches are kept, columns and lines are identified, th
 \subsection{Equation to solve}
 \label{subsc:eq}
 
-For a little recall of Section~\ref{sc:grid-pattern}, the purpose here is to find a relation between the scanner's position (what we are looking for) and the regular gaps between lines and columns. Again, the gap between lines and the gap between columns is not necessary the same. Look at Figure~\ref{fig:topview}. There are four (4) vertical lines viewed from a bird's eye: $a$, $b$, $c$ and $d$. They are represented as points because of the point of view. The regular gap between
-those lines is represented by the relation $d_1 = d_2$.
+For a little recall of Section~\ref{sc:grid-pattern}, the purpose here is to find a relation between the scanner's position (what we are looking for) and the regular gaps between lines and columns. Again, the gap between lines and the gap between columns is not necessary the same. Also, at this point, we already have a reduced area of research which is arround the circular cluster obtained in Section~\ref{subsc:highdens}. What we want, is a set of equations that will help
+to set the point within this area.
 
-FIXME: More explanation.
+Look at Figure~\ref{fig:topview}. There are four (4) vertical lines viewed from a bird's eye: $a$, $b$, $c$ and $d$. They are represented as points because of the point of view. The regular gap between those lines is represented by the relation $d_1 = d_2$. But instead of working on the regular gap distance, one can work with the regular rotation angle of the scanner. These angles directly involve the scanner location in all equations. Here is how the problem is built: for each grid-pattern, and for
+each pair of two consecutive lines (or columns), we minimize the absolute difference between their respective angles (here $\alpha_1$ and $\alpha_2$). This is a non-linear least-square problem.
 
-So, to conclude, for each grid-pattern, and for each pair of two consecutive lines (or columns), we minimize the absolute difference between their respective angles (here $\alpha_1$ and $\alpha_2$). This is a non-linear least-square problem.
+FIXME: More explanation?
 
 \begin{figure}
   \centering
@@ -232,7 +233,52 @@ So, to conclude, for each grid-pattern, and for each pair of two consecutive lin
 \end{figure}
 
 \subsection{Results and discussions}
-Not multiscan.
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \draw[fill] (0,0) circle (2pt) coordinate (a) node[above=0.2cm]{$a$};
+    \draw[fill] (2.5,0) circle (2pt) coordinate (b) node[above=0.2cm]{$b$};
+    \draw[fill] (5,0) circle (2pt) coordinate (c) node[above=0.2cm]{$c$};
+    \draw[fill] (7.5,0) circle (2pt) coordinate (d) node[above=0.2cm]{$d$};
+    \draw[fill] (3.75, -4.5) circle (2pt) coordinate (e) node[below=0.1cm,black]{$s$};
+    \draw[fill] (-4, 0) circle (2pt) coordinate (f) node[below=0.1cm,black]{$s'$};
+    \draw[red, <->, shorten <= 0.2cm, shorten >= 0.2cm]
+      (a) -- node[above]{$d_1$} (b);
+    \draw[red, <->, shorten <= 0.2cm, shorten >= 0.2cm]
+      (c) -- node[above]{$d_2$} (d);
+    \draw[dashed] (a) -- (e) -- (b)
+      pic["$\alpha_1$", draw=red, red, solid, <-, angle eccentricity=1.2,
+          angle radius=1cm] {angle=b--e--a};
+    \draw[dashed] (c) -- (e) -- (d)
+      pic["$\alpha_2$", draw=red, red, solid, <-, angle eccentricity=1.2,
+          angle radius=1cm] {angle=d--e--c};
+    \draw[dashed, blue] (a) -- (f) -- (b)
+      pic["$\alpha_1'$", draw=blue, blue, above, solid, <-, angle eccentricity=1.2,
+          angle radius=1cm] {angle=b--f--a};
+    \draw[dashed, blue] (c) -- (f) -- (d)
+      pic["$\alpha_2'$", draw=blue, blue, below, solid, <-, angle eccentricity=1.2,
+          angle radius=1cm] {angle=d--f--c};
+
+  \end{tikzpicture}
+  \caption{Illustration of the problem preventing the grid-pattern method from finding the scanner location. Not that this is a top view over four (4) vertical grid lines ($a$, $b$, $c$ and $d$), the apprixmation ($s'$) and the real scanner ($s$).}
+  \label{fig:grid-problem}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[scale=0.3]{img/grid-result.jpg}
+  \caption{An approximation of the scanner location using the grid-pattern method. The real scanner location is highlighted by the upper arrow while the approximation is highlighted by the lower one.}
+  \label{fig:grid-result}
+\end{figure}
+
+Figure~\ref{fig:grid-result} shows a result of grid-pattern approximation of scanner location. This method does not perform quite well. One would think that the approximation is not far from the real scanner location but reducing the area of research to a cube arround the circular cluster is somewhat misleading. We tried to remove the area constraints and observed that the approximation moves entirely away from the real location and even the point cloud itself. It can stoop pretty low, go to really
+high altitude, on the left, on the right. It completely depends on the distribution of the grid-patterns in the point cloud.
+
+Let us take one grid-pattern in order to illustrate the problem: Figure~\ref{fig:grid-problem}. As our method tries to minimize the differences between all pairs of angles, here $\alpha_1$ and $\alpha_2$, the ideal case is if the scanner location belongs to the underlying surface of the grid-pattern. Here, $\alpha_1'$ and $\alpha_2'$ are perfectly equal: $\alpha_1' - \alpha_2' = 0$. Therefore, with a huge set of equations involving several grid-patterns, the optimal solution for
+the solver is to put the scanner in the \emph{mean underlying surface} of the \emph{mean plan} of all grid-patterns. This is why, without the reduced area constraint, the approximated scanner is far away from the point cloud as the solver tries to reduce all angle differences and then, satisfy all grid-patterns.
+
+To conclude, angles differences are not discriminating enough. We believe there is a way to express the problem in another way, in order to bypass this behaviour but we deciced to try another approach presented in Section~\ref{sc:elliptic}. In addition, this approach is limited to one scanner whereas the other method works with multiple scaners.
+
 
 
 \section{The elliptic method}
