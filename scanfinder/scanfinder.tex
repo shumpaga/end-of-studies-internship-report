@@ -285,7 +285,7 @@ FIXME: More explanation?
   \label{fig:grid-result}
 \end{figure}
 
-Figure~\ref{fig:grid-result} shows a result of grid-pattern approximation of scanner location. This method does not perform quite well. One would think that the approximation is not far from the real scanner location but reducing the area of research to a cube arround the circular cluster is somewhat misleading. We tried to remove the area constraints and observed that the approximation moves entirely away from the real location and even the point cloud itself. It can stoop pretty low, go to really
+Figure~\ref{fig:grid-result} shows a result of grid-pattern approximation of scanner location. This method does not perform quite well. One would think that the approximation is not far from the real scanner location but reducing the area of research to a cube arround the circular cluster can be misleading. We tried to remove the area constraints and observed that the approximation moves entirely away from the real location and even the point cloud itself. It can stoop pretty low, go to really
 high altitude, on the left, on the right. It completely depends on the distribution of the grid-patterns in the point cloud.
 
 Let us take one grid-pattern in order to illustrate the problem: Figure~\ref{fig:grid-problem}. As our method tries to minimize the differences between all pairs of angles, here $\alpha_1$ and $\alpha_2$, the ideal case is if the scanner location belongs to the underlying surface of the grid-pattern. Here, $\alpha_1'$ and $\alpha_2'$ are perfectly equal: $\alpha_1' - \alpha_2' = 0$. Therefore, with a huge set of equations involving several grid-patterns, the optimal solution for
@@ -302,9 +302,29 @@ To conclude, angles differences are not discriminating enough. We believe there 
 
 
 \subsection{Fitting ellipse}
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.4]{img/ellipse.png}
+  \caption{Ellipse fitted on a circular cluster.}
+  \label{fig:ellipse}
+\end{figure}
 
+For each of the circular cluster, we extract the points close to the inside of the cluster and then fit an ellipse using a least-square algorithm.
+
+FIXME: Explain ellipse fitting (refere to ransac and least square in background).
+
+The center of the fitted ellipse is computed, and the center of the scanner lies on the z-axis passing through this center. This is only an approximation that suppose that the ground is approximately horizontal. This approximation applies to a vast majority of cases where terrestrial scanning is used. If needed, a refinement of the horizontal position of the scanner can be obtained by applying the same process as described below to estimate the vertical position of the scanner.
 
 \subsection{Equation to solve}
+To estimate the height of the scanner, we will use the slight variation in density of the points in the circular cluster. The intuition is that the density of a local point is linked to its distance from the scanner. Using multiple points, we are able to triangulate the position of the scanner. For a point $p$ in the high density circular cluster, we note $r$ the distance between the scanner and the point, $d$ the density of the point, and $\alpha$ the angle between the normal of the point and the direction
+from the point of the scanner. Using the fact that point density decreases proportionally as moving away from the scanner, the following relation should be verified for any pair of points.
+\begin{equation}
+\frac{d_a \times r_a^2}{\cos(\alpha_a)} = \frac{d_b \times r_b^2}{\cos(\alpha_b)}
+\end{equation}
+where $d_a$ is the density of $a$ and $d_b$ the density of $b$. This is explained in Figure~\ref{fig:sideview}.
+
+For each circular cluster, we pick a sample of N points (in our experiments, N=6 points) with different densities. We then use a non-linear least square solver to determine the position of the scanner, mixing together   equations (15 if N=6). As a result, we retrieve an estimated position of the scanner location.
+
 \begin{figure}
   \centering
   \begin{tikzpicture}[scale=0.8]
@@ -337,3 +357,25 @@ To conclude, angles differences are not discriminating enough. We believe there 
 
 
 \subsection{Results and discussions}
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.4]{img/ellipse-result.png}
+  \caption{Light blue point in the box is the correct position, green point next to it is our estimation.}
+  \label{fig:ellipse-result}
+\end{figure}
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.3]{img/ellipse-multi1.png}
+  \caption{Multiple locations detected in a large point cloud.}
+  \label{fig:ellipse-multi1}
+\end{figure}
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.3]{img/ellipse-multi2.png}
+  \caption{Multiple locations detected in another large point cloud.}
+  \label{fig:ellipse-multi2}
+\end{figure}
+
+Testing on various reference datasets, we found that the error between the correct position and our estimation ranges between 2 and 20 cm.
+
+This pipeline is particularly suited for multi-scan point clouds. Terrestrial scanners tend to generate most of the points close to their positions. If we consider that scans are not taken in the same close vicinity, high density clusters are disjoint. We confirm with hypothesis in our experiments. Therefore, the coarse detection works well in the multi-scan hypothesis. The same idea applies for the fine position algorithm: most points in the circular cluster come from a single scanner. The few other points coming from different scanners don’t have a significant impact on the local density of the points. That way, the scanner height is correctly detected in a multi-scan setting.
