@@ -155,7 +155,8 @@ This subsection explains how to find \emph{accurate} grid patterns in point clou
 Algorithm~\ref{alg:GetPlanarPatches} shows how to extract some planar patches in a point cloud. A preprocessing step already done and explained in Section~\ref{subsc:highdens} is to compute for each point of the point cloud, the normal and its \emph{confidence level}. This \emph{confidence level} plays a key role in the algorithm as it tells how planar the region around each point is. By browsing all points, each time we find a point with a good \emph{confidence level} ($> 0.001$), we start to build a patch around it. To do so, we extract its 50
 closest neighbours and consider only those having their normal almost colinear to the normal of the starting point. If the size of the obtained set is bigger enough ($>\ 0.9 \times 200$), the set is kept and otherwise, not. Also, in order to avoid overlaping or patches too close, we keep track of visited points.
 
-Although planar, this set of patches potentially contains: \textbf{(a)} patches whose underlying surfaces are not orthogonal to the surface of the ground and \textbf{(b)} patches without grid patterns. To filter out each \textbf{(a)} patch, we use a dot product between its normal and the normal of the circular cluster found in the high-density area\footnote{The circular cluster desribes the surface on which the scanner is positioned.} (see Section~\ref{sc:highdens}). For \textbf{(b)} patches, the objectif is to indentify grid-patterns. To do so, we use least square method in order to fit lines. Least-square is explained in Section~\ref{subsc:least}. Fitting a line fall into linear least square problems. Figure~\ref{fig:fitline} shows how to fit a line to a set of points using the Eigen library~\cite{eigenweb}. The purpose is to use this line fitting in order to cluster lines and columns. Figure~\ref{fig:line-col-cluster} shows results of a clustering performed on two patches after several fittings and adjustements. We only keep patches containing a grid-pattern and between those, patches having a regular gap between columns and lines. The rest is discarded.
+Although planar, this set of patches potentially contains: \textbf{(a)} patches whose underlying surfaces are not orthogonal to the surface of the ground and \textbf{(b)} patches without grid patterns. To filter out each \textbf{(a)} patch, we use a dot product between its normal and the normal of the circular cluster found in the high-density area\footnote{The circular cluster desribes the surface on which the scanner is positioned.} (see Section~\ref{sc:highdens}). For \textbf{(b)} patches,
+the objectif is to indentify grid-patterns. To do so, we use least square method in order to fit lines. Least-square is explained in Section~\ref{subsc:least}. Fitting a line fall into linear least square problems. Figure~\ref{fig:fitline} shows how to fit a line to a set of points using the Eigen library~\cite{eigenweb}. The purpose is to use this line fitting in order to cluster lines and columns. Figure~\ref{fig:line-col-cluster} shows results of a clustering performed on two patches after several fittings and adjustements. We only keep firstly patches containing a grid-pattern and then, patches having a regular gap between columns and lines. The rest is discarded.
 
 \begin{figure}
   \centering
@@ -178,7 +179,6 @@ Although planar, this set of patches potentially contains: \textbf{(a)} patches 
   \label{fig:fitline}
 \end{figure}
 
-
 \begin{figure*}[t!]
   \centering
     \begin{subfigure}[t]{0.5\textwidth}
@@ -196,9 +196,40 @@ Although planar, this set of patches potentially contains: \textbf{(a)} patches 
     \label{fig:line-col-cluster}
 \end{figure*}
 
+Once only \emph{accurate} patches are kept, columns and lines are identified, the problem can be formalised.
+
 \subsection{Equation to solve}
 \label{subsc:eq}
 
+For a little recall of Section~\ref{sc:grid-pattern}, the purpose here is to find a relation between the scanner's position (what we are looking for) and the regular gaps between lines and columns. Again, the gap between lines and the gap between columns is not necessary the same. Look at Figure~\ref{fig:topview}. There are four (4) vertical lines viewed from a bird's eye: $a$, $b$, $c$ and $d$. They are represented as points because of the point of view. The regular gap between
+those lines is represented by the relation $d_1 = d_2$.
+
+FIXME: More explanation.
+
+So, to conclude, for each grid-pattern, and for each pair of two consecutive lines (or columns), we minimize the absolute difference between their respective angles (here $\alpha_1$ and $\alpha_2$). This is a non-linear least-square problem.
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \draw[fill] (0,0) circle (2pt) coordinate (a) node[above=0.2cm]{$a$};
+    \draw[fill] (2.5,0) circle (2pt) coordinate (b) node[above=0.2cm]{$b$};
+    \draw[fill] (5,0) circle (2pt) coordinate (c) node[above=0.2cm]{$c$};
+    \draw[fill] (7.5,0) circle (2pt) coordinate (d) node[above=0.2cm]{$d$};
+    \draw[fill] (3.75, -4.5) circle (2pt) coordinate (e) node[below=0.1cm,black]{$s$};
+    \draw[red, <->, shorten <= 0.2cm, shorten >= 0.2cm]
+      (a) -- node[above]{$d_1$} (b);
+    \draw[red, <->, shorten <= 0.2cm, shorten >= 0.2cm]
+      (c) -- node[above]{$d_2$} (d);
+    \draw[dashed] (a) -- (e) -- (b)
+      pic["$\alpha_1$", draw=red, red, solid, <-, angle eccentricity=1.2,
+          angle radius=1cm] {angle=b--e--a};
+    \draw[dashed] (c) -- (e) -- (d)
+      pic["$\alpha_2$", draw=red, red, solid, <-, angle eccentricity=1.2,
+          angle radius=1cm] {angle=d--e--c};
+  \end{tikzpicture}
+  \caption{A top view over four (4) vertical grid lines ($a$, $b$, $c$ and $d$) and a scanner ($s$).}
+  \label{fig:topview}
+\end{figure}
 
 \subsection{Results and discussions}
 Not multiscan.
