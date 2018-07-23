@@ -275,7 +275,7 @@ Figure~\ref{fig:grid-result} shows a result of grid-pattern approximation of sca
 high altitude, on the left, on the right. It completely depends on the distribution of the grid-patterns in the point cloud.
 
 Let us take one grid-pattern in order to illustrate the problem: Figure~\ref{fig:grid-problem}. As our method tries to minimize the differences between all pairs of angles, here $\alpha_1$ and $\alpha_2$, the ideal case is if the scanner location belongs to the underlying surface of the grid-pattern. Here, $\alpha_1'$ and $\alpha_2'$ are perfectly equal: $\alpha_1' - \alpha_2' = 0$. Therefore, with a huge set of equations involving several grid-patterns, the optimal solution for
-the solver is to put the scanner in the \emph{mean underlying surface} of the \emph{mean plan} of all grid-patterns. This is why, without the reduced area constraint, the approximated scanner is far away from the point cloud as the solver tries to reduce all angle differences and then, satisfy all grid-patterns.
+the solver is to put the scanner in the underlying surface of the \emph{mean plan of all grid-pattern underlying planes}. This is why, without the reduced area constraint, the approximated scanner is far away from the point cloud as the solver tries to reduce all angle differences and then, satisfy all grid-patterns.
 
 To conclude, angles differences are not discriminating enough. We believe there is a way to express the problem in another way, in order to bypass this behaviour but we deciced to try another approach presented in Section~\ref{sc:elliptic}. In addition, this approach is limited to one scanner whereas the other method works with multiple scaners.
 
@@ -291,6 +291,35 @@ To conclude, angles differences are not discriminating enough. We believe there 
 
 
 \subsection{Equation to solve}
+\begin{figure}
+  \centering
+  \begin{tikzpicture}[scale=0.8]
+    \draw[fill] (-8.2,0) circle (0pt) coordinate (p1);
+    \draw[fill] (6.5,0) circle (0pt) coordinate (p2);
+    \draw[gray, thin] (p1) -- node[near end, right=3cm]{ground level} (p2);
+
+    \draw[fill] (0,0) circle (0pt) coordinate (x) node[above=0.2cm]{};
+    \draw[fill] (5,0) circle (0pt) coordinate (y) node[above=0.2cm]{};
+    \draw[fill,blue] (5.5,0) circle (2pt) coordinate (a) node[below=0.2cm]{$a$};
+    \draw[fill,red] (-2,0) circle (2pt) coordinate (b) node[below=0.2cm]{$b$};
+    \draw[fill] (5.5,2) circle (0pt) coordinate (c);
+    \draw[fill] (-2,2) circle (0pt) coordinate (d);
+    \draw[black, dashed, <->, line width=0.5mm] (x) -- node[below=-0.1cm]{ellipse} (y);
+    \draw[blue](a) circle [radius=4.05];
+    \draw[red](b) circle [radius=5.2];
+    \draw[fill] (2.45,2.7) circle (4pt) coordinate (s) node[right=0.2cm]{$s$};
+    \draw[dashed, blue] (s) -- node[near start, right]{$r_a$} (a) -- (c)
+      pic["$\alpha_a$", draw=blue, blue, solid, <-, angle eccentricity=0.8,
+          angle radius=1cm] {angle=c--a--s};
+    \draw[dashed, red] (d) -- (b) --  node[near end, left=0.1cm]{$r_b$} (s)
+      pic["$\alpha_b$", draw=red, red, solid, <-, angle eccentricity=0.8,
+          angle radius=1cm] {angle=s--b--d};
+    \draw[red, <-, line width=0.3mm] (d) -- node[left, near start]{$\vec{n}_b$}(b);
+    \draw[blue, <-, line width=0.3mm] (c) -- node[right, near start]{$\vec{n}_a$}(a);
+  \end{tikzpicture}
+  \caption{A side view of the ellipse and two spheres intersecting at the scanner position $s$ and their respective centers $a$ and $b$. We have the relation $\frac{d_a \times r_a^2}{\cos(\alpha_a)} = \frac{d_b \times r_b^2}{\cos(\alpha_b)}$.}
+  \label{fig:sideview}
+\end{figure}
 
 
 \subsection{Results and discussions}
