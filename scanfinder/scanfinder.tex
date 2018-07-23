@@ -68,17 +68,31 @@ Figure~\ref{fig:density}. To conclude, extracting the most dense areas is intere
 \label{subsc:highdens}
 \begin{figure}
   \centering
-  \includegraphics[scale=1]{img/lidar.jpg}
-  \caption{Result of high density extraction on several point clouds.}
+  \includegraphics[scale=0.44]{img/highdens.png}
+  \caption{The result of the high density extraction of a point cloud.}
   \label{fig:highdens}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.5]{img/cluster.png}
+  \caption{The result after clustering dense points of a point cloud.}
+  \label{fig:cluster}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.5]{img/circular.png}
+  \caption{The result after trying to identify circular clusters.}
+  \label{fig:circular}
 \end{figure}
 
 The first step of the algorithm is to detect high density regions in the point cloud. For each point, we compute its density based on the mean distance to its $k$ neighbors ($k \in [15,50]$). We extract high density regions by selecting a percentage of the densest points (percentage between 1 and 5\%). Figure~\ref{fig:highdens} shows some results of this high density point extraction. As you can see, they always contain the scanner. Note that the scanner is not able to scan below himself leading to an elliptic form\footnote{This elliptic form is the key point of the method described in Section~\ref{sc:elliptic}.} appearing in all point clouds.
 
 Once these points are extracted, a clustering step is applied. The clustering is needed so that points from the point clouds corresponding to potentially different parts of the scene around the scanner can be separated. For each point, we compute its non-oriented normal and the associated \emph{confidence level} by performing a principal component analysis (PCA) on its local neighborhood. Section~\ref{subsc:pca} gives more details on how this PCA works. Then, as long as points are not attributed
-to a cluster, we select the point on the flattest surface, and iteratively add its neighbors that share a coherent normal orienta-tion (the dot product of the two normals must be superior to 0.8 in our experiments). Note that the  flattest surface is determined using condifence levels, they tell which point belongs to a planar region.
+to a cluster, we select the point on the flattest surface, and iteratively add its neighbors that share a coherent normal orienta-tion (the dot product of the two normals must be superior to 0.8 in our experiments). Note that the  flattest surface is determined using condifence levels, they tell which point belongs to a planar region. Figure~\ref{fig:cluster} shows the result of such clustering.
 
-Once every point is clustered, we discard clusters with too few points (in our experiments, we use a threshold of 0.2\% of the number of high density points). We then detect clusters that are circular. A cluster is considered circular if its centroid, i.e. the average of all the points it contains, is far away from the points of the cluster.
+Once every point is clustered, we discard clusters with too few points (in our experiments, we use a threshold of 0.2\% of the number of high density points). We then detect clusters that are circular. A cluster is considered circular if its centroid, i.e. the average of all the points it contains, is far away from the points of the cluster. Figure~\ref{fig:circular} shows a circular cluster identified.
 
 At this point, we have computed a coarse location of the scanner. Methods described in Section~\ref{sc:grid-pattern} and Section~\ref{sc:elliptic} use it in their own way in order to find scanner locations.
 
@@ -317,7 +331,7 @@ To conclude, angles differences are not discriminating enough. We believe there 
     \draw[red, <-, line width=0.3mm] (d) -- node[left, near start]{$\vec{n}_b$}(b);
     \draw[blue, <-, line width=0.3mm] (c) -- node[right, near start]{$\vec{n}_a$}(a);
   \end{tikzpicture}
-  \caption{A side view of the ellipse and two spheres intersecting at the scanner position $s$ and their respective centers $a$ and $b$. We have the relation $\frac{d_a \times r_a^2}{\cos(\alpha_a)} = \frac{d_b \times r_b^2}{\cos(\alpha_b)}$.}
+  \caption{A side view of the ellipse and two spheres intersecting at the scanner position $s$ and their respective centers $a$ and $b$. We have the relation $\frac{d_a \times r_a^2}{\cos(\alpha_a)} = \frac{d_b \times r_b^2}{\cos(\alpha_b)}$ where $d_a$ is the density of $a$ and $d_b$ the density of $b$.}
   \label{fig:sideview}
 \end{figure}
 
