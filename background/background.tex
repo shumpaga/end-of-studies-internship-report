@@ -16,14 +16,17 @@ This chapter introduces the necessary concepts and definitions for a better unde
   \\A point cloud $P$ of size $s$ is a set $P = \left\lbrace p_i \mid i \in [0, s]  \right\rbrace$
 \end{definition}
 
+\subsection{Translation}
+\subsection{Rotation}
+\subsection{Projection ??}
 
-\section{Some algorithms}
+\section{Core algorithms}
 
 \subsection{Principal Component Analysis (PCA)}
 \label{subsc:pca}
 PCA is a common algorithm of data analysis. It is used to project data with $n$ dimensions into a space with reduced dimensions while keeping the most relevant information -- the directions where there is the most variance, where the data is most spread out. As its name suggests, it finds the principal components from the most important to the less one. We say that the first principal component is a rotation of $x$-axis to maximize the variance of the data projected onto it and the last axis (component) is the one with less variance, with redundant information.
 
-We are not going to explain in detail what a PCA is as it is very common and not the core of our work here. But let us remind the methodology.
+We are not going to explain in detail what a PCA is as it is very common and not the core of our work here. But let us remind the methodology in the specific case of 3D data.
 
 \begin{definition}{: Principal Component Analysis (PCA)}
 \\ Let $P_a$ be a set of points of size $s_a$. To perform \textit{PCA($P_a$):}
@@ -38,7 +41,7 @@ C = \sum_{p \in P_a} (p - \bar{p_a}) \otimes (p - \bar{p_a}) \text{,       where
 \end{itemize}
 \end{definition}
 
-In \cite{hoppe}, Hoppe et al. use PCA to determine the normal of a tangent plane. Similarly in this report, we use PCA for two purposes: find the normal's direction of a plane and find the normal's direction at a point. If a set of points forms a plane, we choose its normal to be either $\vec{v}_3$ or $-\vec{v}_3$. It is the direction with less data variation and in a perfect word, that is a perfect plane alignment, the projection of all points onto it gives the same value. This means that  $\mu = 0$. Now if $P_a$ is formed of $p_i$ and its $k$-neighbouring points, then $\vec{v}_3$ or $-\vec{v}_3$ is the normal at $p_i$. We empirically deduced fifty (50) to be the ideal value for $k$.
+In \cite{hoppe}, Hoppe et al. use PCA to determine the normal of a tangent plane. Similarly in this report, we use PCA for two purposes: detect if a set of points are plannar by computing their normal's direction or simply find the normal's direction at a specific point using its neighbours. If a set of points forms a plane, we choose its normal to be either $\vec{v}_3$ or $-\vec{v}_3$. It is the direction with less data variation and in a perfect word, that is a perfect plane alignment, the projection of all points onto it gives the same value. This means that  $\mu = 0$. Now if $P_a$ is formed of $p_i$ and its $k$-neighbouring points, then $\vec{v}_3$ or $-\vec{v}_3$ is the normal at $p_i$. We empirically deduced fifty (50) to be the ideal value for $k$.
 
 
 \subsection{Least Square Methods}
@@ -67,9 +70,3 @@ We only need to specify the parameters, write the \emph{Cost function} and Ceres
 
 
 \subsection{RANSAC}
-
-
-\section{Geometric operations}
-\subsection{Translation}
-\subsection{Rotation}
-\subsection{Projection ??}

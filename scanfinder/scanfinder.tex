@@ -1,6 +1,6 @@
 \chapter{Scan Finder}
 \label{ch:scanfinder}
-This chapter describes \emph{Scan Finder}, an algorithm that can be used to retrieve all scanners position of a point cloud,  if there are any, regardless of its nature. Firstly, Section~\ref{sc:spec} reviews the context which brings this need and describes some characteristics of the expected solution. Then, Section~\ref{sc:work} reminds that there is no previous work related to this subject. Finally, Section~\ref{sc:highdens} describes a first step toward scanner location
+This chapter describes \emph{Scan Finder}, an algorithm that can be used to retrieve all scanners position of a point cloud,  if there are any, as long as it is static. Firstly, Section~\ref{sc:spec} reviews the context which brings this need and describes some characteristics of the expected solution. Then, Section~\ref{sc:work} reminds that there is no previous work related to this subject. Finally, Section~\ref{sc:highdens} describes a first step toward scanner location
 finding before showing and discussing the results of two different approaches described respectively in Section~\ref{sc:grid-pattern} and Section~\ref{sc:elliptic}. To be clear, Section~\ref{sc:highdens} is a common first step to both methods.
 
 
@@ -50,16 +50,16 @@ This section explains a common first step to methods described in Section~\ref{s
 
 \subsection{LiDAR scanner and context}
 \label{subsc:lidar}
-LiDAR is an acronym of Light Detection and Ranging. It is a remote sensing technology which uses the pulse from a laser to collect measurements. The principle is simple: it works in a similar way to Radar and Sonar but uses light waves from a laser, instead of radio or sound waves. A LiDAR system calculates how long it takes for the light to hit an object or surface and reflect back to the scanner and then, uses the velocity of light\footnote{The velocity, or speed of light is 299,792,458 metres
-per second.} to calculate the distance. LiDAR systems can fire around 1,000,000 pulses per second. This paragraph is inspired by \cite{lidar}.
+LiDAR\footnote{This paragraph is inspired by \cite{lidar}.} is an acronym of Light Detection and Ranging. It is a remote sensing technology which uses the pulse from a laser to collect measurements. The principle is simple: it works in a similar way to Radar and Sonar but uses light waves from a laser, instead of radio or sound waves. A LiDAR system calculates how long it takes for the light to hit an object or surface and reflect back to the scanner and then, uses the velocity of light\footnote{The velocity, or speed of light is 299,792,458 metres
+per second.} to calculate the distance. LiDAR systems can fire around 1,000,000 pulses per second.
 
 When scanning, there are two kind of rotations that a LiDAR scanner performs. They are indicated by black arrows in Figure~\ref{fig:lidar}. Not only a LiDAR scanner has a constant rotation angle when turning on itself but it also has a constant vertical rotation angle when scanning the environment. Because of these constant rotation angles, the further we go, the lower the point density is. On the contrary, the closer to the scanner we are, the higher the point density is. This density variation can be observed in
 Figure~\ref{fig:density}. To conclude, extracting the most dense areas is interesting as they always are around scanner locations and then, reduce the global search area.
 
 \begin{figure}
   \centering
-  \includegraphics[scale=1]{img/lidar.jpg}
-  \caption{Variation of density as we go further away from the source.}
+  \includegraphics[scale=0.7]{img/dens.jpg}
+  \caption{Variation of density as we go further away from the scanner source (the empty circular space).}
   \label{fig:density}
 \end{figure}
 
@@ -76,14 +76,14 @@ Figure~\ref{fig:density}. To conclude, extracting the most dense areas is intere
 \begin{figure}
   \centering
   \includegraphics[scale=0.5]{img/cluster.png}
-  \caption{The result after clustering dense points of a point cloud.}
+  \caption{The result after clustering dense points of Figure~\ref{fig:highdens}.}
   \label{fig:cluster}
 \end{figure}
 
 \begin{figure}
   \centering
   \includegraphics[scale=0.5]{img/circular.png}
-  \caption{The result after trying to identify circular clusters.}
+  \caption{The result after trying to identify circular clusters of Figure~\ref{fig:cluster}.}
   \label{fig:circular}
 \end{figure}
 
@@ -102,11 +102,11 @@ At this point, we have computed a coarse location of the scanner. Methods descri
 \label{sc:grid-pattern}
 This section explains one approach we tried in order to solve the problem. Before explaining the method in detail, let us first give the intuition behind this idea.
 
-\subsection{Overview}
+\subsection{Intuition}
 As said in Section~\ref{subsc:lidar}, LiDAR scanners perfom two kind of rotations. These constant vertical and horizontal rotation angles reveal some grid patterns on surfaces perpendicular to the ground\footnote{To be precise, perpendicular to the surface on which the scanner is installed.}. Figure~\ref{fig:grid1} shows an example of a grid pattern that can be found in point clouds. The purpose here is to find, for a single grid pattern, a relation between all constant rotation angles and the scanner's position. Therefore, this relation can be applied with all possible grid patterns in the point clouds, leading to a problem with a huge set of
 constraints to solve. The idea is that only the real scanner's location is able to explain in the best way these constant rotation angles.
 
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \includegraphics[scale=0.5]{img/grid1.png}
   \caption{Example of a grid pattern. As you can see there is a constant offset between each vertical line and each horizontal lines. Note that the offset between columns is not necessary the same than between lines.}
@@ -274,11 +274,11 @@ FIXME: More explanation?
           angle radius=1cm] {angle=d--f--c};
 
   \end{tikzpicture}
-  \caption{Illustration of the problem preventing the grid-pattern method from finding the scanner location. Not that this is a top view over four (4) vertical grid lines ($a$, $b$, $c$ and $d$), the apprixmation ($s'$) and the real scanner ($s$).}
+  \caption{Illustration of the problem preventing the grid-pattern method from finding the scanner location. Note that this is a top view over four (4) vertical grid lines ($a$, $b$, $c$ and $d$), the apprixmation ($s'$) and the real scanner ($s$).}
   \label{fig:grid-problem}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \includegraphics[scale=0.3]{img/grid-result.jpg}
   \caption{An approximation of the scanner location using the grid-pattern method. The real scanner location is highlighted by the upper arrow while the approximation is highlighted by the lower one.}
@@ -297,8 +297,10 @@ To conclude, angles differences are not discriminating enough. We believe there 
 
 \section{The elliptic method}
 \label{sc:elliptic}
+This section describes the second approach to solve the scanner location finding problem. This approach is more interesting than the one of Section~\ref{sc:grid-pattern} because it works natively with merged point clouds (multiple scanners within a point cloud). Let us have the intuition of this method.
 
-\subsection{Overview}
+\subsection{Intuition}
+Let us remind that a first common step to both methods which finds circular clusters is performed. It is described in Section~\ref{sc:highdens}. This first step finds all circular areas arround all scanners locations. 
 
 
 \subsection{Fitting ellipse}
