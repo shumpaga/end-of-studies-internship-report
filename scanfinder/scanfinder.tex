@@ -87,14 +87,15 @@ Figure~\ref{fig:density}. To conclude, extracting the most dense areas is intere
   \label{fig:circular}
 \end{figure}
 
-The first step of the algorithm is to detect high density regions in the point cloud. For each point, we compute its density based on the mean distance to its $k$ neighbors ($k \in [15,50]$). We extract high density regions by selecting a percentage of the densest points (percentage between 1 and 5\%). Figure~\ref{fig:highdens} shows some results of this high density point extraction. As you can see, they always contain the scanner. Note that the scanner is not able to scan below himself leading to an elliptic form\footnote{This elliptic form is the key point of the method described in Section~\ref{sc:elliptic}.} appearing in all point clouds.
+The first step of the algorithm is to detect high density regions in the point cloud. For each point, we compute its density based on the mean distance to its $k$ neighbors ($k \in [15,50]$). We extract high density regions by selecting a percentage of the densest points (percentage between 1 and 5\%). Figure~\ref{fig:highdens} shows some results of this high density point extraction. As you can see, they always are around the scanner's location. Note that the scanner is not able to scan below
+himself leading to an elliptic empty form\footnote{This elliptic form is the key point of the method described in Section~\ref{sc:elliptic}.} appearing in all point clouds.
 
 Once these points are extracted, a clustering step is applied. The clustering is needed so that points from the point clouds corresponding to potentially different parts of the scene around the scanner can be separated. For each point, we compute its non-oriented normal and the associated \emph{confidence level} by performing a principal component analysis (PCA) on its local neighborhood. Section~\ref{subsc:pca} gives more details on how this PCA works. Then, as long as points are not attributed
-to a cluster, we select the point on the flattest surface, and iteratively add its neighbors that share a coherent normal orienta-tion (the dot product of the two normals must be superior to 0.8 in our experiments). Note that the  flattest surface is determined using condifence levels, they tell which point belongs to a planar region. Figure~\ref{fig:cluster} shows the result of such clustering.
+to a cluster, we select the point on the flattest surface, and iteratively add its neighbors that share a coherent normal orientation (the dot product of the two normals must be superior to 0.8 in our experiments). Note that the  flattest surface is determined using condifence levels, they tell which point belongs to a planar region. Figure~\ref{fig:cluster} shows the result of such clustering.
 
 Once every point is clustered, we discard clusters with too few points (in our experiments, we use a threshold of 0.2\% of the number of high density points). We then detect clusters that are circular. A cluster is considered circular if its centroid, i.e. the average of all the points it contains, is far away from the points of the cluster. Figure~\ref{fig:circular} shows a circular cluster identified.
 
-At this point, we have computed a coarse location of the scanner. Methods described in Section~\ref{sc:grid-pattern} and Section~\ref{sc:elliptic} use it in their own way in order to find scanner locations.
+At this point, we have computed a rough estimate of the scanner's location. Methods described in Section~\ref{sc:grid-pattern} and Section~\ref{sc:elliptic} use it in their own way in order to find scanner locations.
 
 
 
@@ -215,13 +216,17 @@ Once only \emph{accurate} patches are kept, columns and lines are identified, th
 \subsection{Equation to solve}
 \label{subsc:eq}
 
-For a little recall of Section~\ref{sc:grid-pattern}, the purpose here is to find a relation between the scanner's position (what we are looking for) and the regular gaps between lines and columns. Again, the gap between lines and the gap between columns is not necessary the same. Also, at this point, we already have a reduced area of research which is arround the circular cluster obtained in Section~\ref{subsc:highdens}. What we want, is a set of equations that will help
-to set the point within this area.
+For a little recall of Section~\ref{sc:grid-pattern}, the purpose here is to find a relation between the scanner's position (what we are looking for) and the regular gaps between lines and columns. At this point, we already have a reduced area of research which is around the circular cluster obtained in Section~\ref{subsc:highdens}. What we need, is a set of constraints that will help to set the scanner at a specific position within this area.
 
-Look at Figure~\ref{fig:topview}. There are four (4) vertical lines viewed from a bird's eye: $a$, $b$, $c$ and $d$. They are represented as points because of the point of view. The regular gap between those lines is represented by the relation $d_1 = d_2$. But instead of working on the regular gap distance, one can work with the regular rotation angle of the scanner. These angles directly involve the scanner location in all equations. Here is how the problem is built: for each grid-pattern, and for
-each pair of two consecutive lines (or columns), we minimize the absolute difference between their respective angles (here $\alpha_1$ and $\alpha_2$). This is a non-linear least-square problem.
+Look at Figure~\ref{fig:topview}. There are four (4) vertical lines viewed from a bird's eye: $a$, $b$, $c$ and $d$. They are represented as points because of the point of view. A regular between them can be observed. As explained in the introduction to LiDAR scanners (Section~\ref{subsc:lidar}) this regular gap is due to the consistent angle of rotation of the scanner $\alpha_1 = \alpha_2 = \alpha_3$.
 
-FIXME: More explanation?
+These angles directly involve the scanner location in all equations. Here is how the problem is built: each time the scanner location is set, we minimize for each grid-pattern, and for each pair of two consecutive lines (or columns), the absolute difference between their respective angles. In our case me minimize:
+\begin{align*}
+  d_1 &= |\alpha_1 - \alpha_2|\\
+  d_2 &= |\alpha_2 - \alpha_3|\\
+\end{align*}
+
+This is a non-linear least-square problem which can be resolved using the Ceres Solver~\cite{ceres} (Section~\ref{subsc:least}).
 
 \begin{figure}
   \centering
@@ -231,16 +236,15 @@ FIXME: More explanation?
     \draw[fill] (5,0) circle (2pt) coordinate (c) node[above=0.2cm]{$c$};
     \draw[fill] (7.5,0) circle (2pt) coordinate (d) node[above=0.2cm]{$d$};
     \draw[fill] (3.75, -4.5) circle (2pt) coordinate (e) node[below=0.1cm,black]{$s$};
-    \draw[red, <->, shorten <= 0.2cm, shorten >= 0.2cm]
-      (a) -- node[above]{$d_1$} (b);
-    \draw[red, <->, shorten <= 0.2cm, shorten >= 0.2cm]
-      (c) -- node[above]{$d_2$} (d);
     \draw[dashed] (a) -- (e) -- (b)
       pic["$\alpha_1$", draw=red, red, solid, <-, angle eccentricity=1.2,
           angle radius=1cm] {angle=b--e--a};
-    \draw[dashed] (c) -- (e) -- (d)
+    \draw[dashed] (b) -- (e) -- (c)
       pic["$\alpha_2$", draw=red, red, solid, <-, angle eccentricity=1.2,
-          angle radius=1cm] {angle=d--e--c};
+          angle radius=1.2cm] {angle=c--e--b};
+    \draw[dashed] (c) -- (e) -- (d)
+      pic["$\alpha_3$", draw=red, red, solid, <-, angle eccentricity=1.2,
+          angle radius=1.4cm] {angle=d--e--c};
   \end{tikzpicture}
   \caption{A top view over four (4) vertical grid lines ($a$, $b$, $c$ and $d$) and a scanner ($s$).}
   \label{fig:topview}
@@ -256,16 +260,17 @@ FIXME: More explanation?
     \draw[fill] (7.5,0) circle (2pt) coordinate (d) node[above=0.2cm]{$d$};
     \draw[fill] (3.75, -4.5) circle (2pt) coordinate (e) node[below=0.1cm,black]{$s$};
     \draw[fill] (-4, 0) circle (2pt) coordinate (f) node[below=0.1cm,black]{$s'$};
-    \draw[red, <->, shorten <= 0.2cm, shorten >= 0.2cm]
-      (a) -- node[above]{$d_1$} (b);
-    \draw[red, <->, shorten <= 0.2cm, shorten >= 0.2cm]
-      (c) -- node[above]{$d_2$} (d);
+
     \draw[dashed] (a) -- (e) -- (b)
       pic["$\alpha_1$", draw=red, red, solid, <-, angle eccentricity=1.2,
           angle radius=1cm] {angle=b--e--a};
-    \draw[dashed] (c) -- (e) -- (d)
+    \draw[dashed] (b) -- (e) -- (c)
       pic["$\alpha_2$", draw=red, red, solid, <-, angle eccentricity=1.2,
-          angle radius=1cm] {angle=d--e--c};
+          angle radius=1.2cm] {angle=c--e--b};
+    \draw[dashed] (c) -- (e) -- (d)
+      pic["$\alpha_3$", draw=red, red, solid, <-, angle eccentricity=1.2,
+          angle radius=1.4cm] {angle=d--e--c};
+
     \draw[dashed, blue] (a) -- (f) -- (b)
       pic["$\alpha_1'$", draw=blue, blue, above, solid, <-, angle eccentricity=1.2,
           angle radius=1cm] {angle=b--f--a};
@@ -285,14 +290,20 @@ FIXME: More explanation?
   \label{fig:grid-result}
 \end{figure}
 
-Figure~\ref{fig:grid-result} shows a result of grid-pattern approximation of scanner location. This method does not perform quite well. One would think that the approximation is not far from the real scanner location but reducing the area of research to a cube arround the circular cluster can be misleading. We tried to remove the area constraints and observed that the approximation moves entirely away from the real location and even the point cloud itself. It can stoop pretty low, go to really
+Figure~\ref{fig:grid-result} shows a result of grid-pattern approximation of scanner location. This method does not perform quite well. One would think that the approximation is not far from the real scanner location but reducing the area of research to a cube around the circular cluster can be misleading. We tried to remove the area constraints and observed that the approximation moves entirely away from the real location and even the point cloud itself. It can stoop pretty low, go to really
 high altitude, on the left, on the right. It completely depends on the distribution of the grid-patterns in the point cloud.
 
-Let us take one grid-pattern in order to illustrate the problem: Figure~\ref{fig:grid-problem}. As our method tries to minimize the differences between all pairs of angles, here $\alpha_1$ and $\alpha_2$, the ideal case is if the scanner location belongs to the underlying surface of the grid-pattern. Here, $\alpha_1'$ and $\alpha_2'$ are perfectly equal: $\alpha_1' - \alpha_2' = 0$. Therefore, with a huge set of equations involving several grid-patterns, the optimal solution for
-the solver is to put the scanner in the underlying surface of the \emph{mean plan of all grid-pattern underlying planes}. This is why, without the reduced area constraint, the approximated scanner is far away from the point cloud as the solver tries to reduce all angle differences and then, satisfy all grid-patterns.
+Let us take one grid-pattern in order to illustrate the problem: Figure~\ref{fig:grid-problem}. As our method tries to minimize the differences between all pairs of angles, here $\alpha_1$, $\alpha_2$ and $\alpha_3$, the ideal case is if the scanner location belongs to the underlying surface of the grid-pattern in which case:
+\begin{align*}
+  |\alpha_1 - \alpha_2| &= 0\\
+  |\alpha_2 - \alpha_3| &= 0\\
+\end{align*}
 
-To conclude, angles differences are not discriminating enough. We believe there is a way to express the problem in another way, in order to bypass this behaviour but we deciced to try another approach presented in Section~\ref{sc:elliptic}. In addition, this approach is limited to one scanner whereas the other method works with multiple scaners.
+Therefore, with a huge set of equations involving several grid-patterns, the optimal solution for
+the solver is to put the scanner on the \emph{mean plan of all grid-pattern's underlying planes}. This is why, without the reduced area constraint, the approximated scanner is far away from the point cloud as the solver tries to reduce all angle differences and then, satisfy all grid-patterns. Another problem found is that this method is too much subjected to noise. We are talking about really small values for angle differences that we want to minimize. A small noise can have
+huge effects during the solving.
 
+To conclude, angles differences are not discriminating enough. We believe there is a way to express the problem, in order to bypass this behaviour but we deciced to try another approach presented in Section~\ref{sc:elliptic}. The current approach is limited to one scanner whereas the other one works with multiple scaners, therefore, is more interesting for \CC.
 
 
 \section{The elliptic method}
@@ -300,7 +311,7 @@ To conclude, angles differences are not discriminating enough. We believe there 
 This section describes the second approach to solve the scanner location finding problem. This approach is more interesting than the one of Section~\ref{sc:grid-pattern} because it works natively with merged point clouds (multiple scanners within a point cloud). Let us have the intuition of this method.
 
 \subsection{Intuition}
-Let us remind that a first common step to both methods which finds circular clusters is performed. It is described in Section~\ref{sc:highdens}. This first step finds all circular areas arround all scanners locations. 
+Let us remind that a first common step to both methods which finds circular clusters is performed. It is described in Section~\ref{sc:highdens}. This first step finds all circular areas around all scanners locations.
 
 
 \subsection{Fitting ellipse}
