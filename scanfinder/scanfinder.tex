@@ -311,10 +311,24 @@ To conclude, angles differences are not discriminating enough. We believe there 
 This section describes the second approach to solve the scanner location finding problem. This approach is more interesting than the one of Section~\ref{sc:grid-pattern} because it works natively with merged point clouds (multiple scanners within a point cloud). Let us have the intuition of this method.
 
 \subsection{Intuition}
-Let us remind that a first common step to both methods which finds circular clusters is performed. It is described in Section~\ref{sc:highdens}. This first step finds all circular areas around all scanners locations.
+Recall that a first common step to both methods is performed. This step finds all  circular clusters around all scanner locations of the point cloud. It is described in Section~\ref{sc:highdens}. As said in Section~\ref{sc:highdens}, these empty circles appears because the scanner is not able to scan below itself.
+
+This method tries to find the scanner location in two steps:
+\begin{itemize}
+  \item find the $z$ axis on which the scanner is
+  \item set the scanner on this axis by estimating its height
+\end{itemize}
+
+The $z$ axis on which the scanner is is simply the axis perpendicular to the circular cluster which runs through its center. In order to find this axis, we fit an ellipse arround the circular cluster before finding its center. Once the axis is known, we try to estimate the scanners height. The
+
+The first key point of this method is that the scanner location is necessary on the axis perpendicular to this elliptic form and which runs through its center. The intuition is that the density of a local point is linked to its distance from the scanner. Figure~\ref{fig:density} shows the variation of density as we go further away from the scanner location. Using multiple points in the high density area, we are able to triangulate the position of the scanner. The real scanner location
+is the best position able to explain the link between the local density of each point and its distance from the scanner.
+
+In Section~\ref{subsc:fit} we describe how the scanner's axis is found and in  Section~\ref{subsc:ellipse-eq} we show how to formalise the non-linear least square problem to solve.
 
 
 \subsection{Fitting ellipse}
+\label{subsc:fit}
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.4]{img/ellipse.png}
@@ -322,21 +336,36 @@ Let us remind that a first common step to both methods which finds circular clus
   \label{fig:ellipse}
 \end{figure}
 
-For each of the circular cluster, we extract the points close to the inside of the cluster and then fit an ellipse using a least-square algorithm.
+This section describes how we fit an ellipse on a circular cluster before finding its center. We need the ellipse to be as close as possible to the cluster interior.
+For this, the following procedure is followed:
+\begin{itemize}
+\item Extract the closest points to the inside of the cluster.
+\item Perform a PCA on those points to compute their normal. This normal is considered as the ellipse normal.
+\item Align the normal with the $z$ axis using geometric transformation so that the future ellipse is completely horizontal. This is an important step as we need to use the elliptic two-dimensional equation:
+  \begin{equation}
+    Ax^2 + Bxy + Cy^2 + Dx + Ey + F = 0
+  \end{equation}
+  Aligning the normal with the $z$ axis allows us to ignore the last dimension while fitting the ellipse.
+\item Try to fit an ellipse using a RANSAC algorithm. This enables to filter out outlying points in order to only keep \emph{good} points.
+\item Fit the ellipse using a simple linear least square.
+\item The equation of the ellipse in this 2D projection is known. Compute the ellipse center by generating multiple points on the ellipse using the equation and computing their centroid.
+\end{itemize}
 
-FIXME: Explain ellipse fitting (refere to ransac and least square in background).
+A result of such procedure can be observed in Figure~\ref{fig:ellipse}. The circular cluster has a red color while the fitted ellipse is in green.
 
-The center of the fitted ellipse is computed, and the center of the scanner lies on the z-axis passing through this center. This is only an approximation that suppose that the ground is approximately horizontal. This approximation applies to a vast majority of cases where terrestrial scanning is used. If needed, a refinement of the horizontal position of the scanner can be obtained by applying the same process as described below to estimate the vertical position of the scanner.
 
 \subsection{Equation to solve}
-To estimate the height of the scanner, we will use the slight variation in density of the points in the circular cluster. The intuition is that the density of a local point is linked to its distance from the scanner. Using multiple points, we are able to triangulate the position of the scanner. For a point $p$ in the high density circular cluster, we note $r$ the distance between the scanner and the point, $d$ the density of the point, and $\alpha$ the angle between the normal of the point and the direction
-from the point of the scanner. Using the fact that point density decreases proportionally as moving away from the scanner, the following relation should be verified for any pair of points.
+\label{subsc:ellipse-eq}
+To estimate the height of the scanner, we will use the slight variation in density of the points in the circular cluster.
+For a point $p$ in the high density circular cluster, we note $r$ the distance between the scanner and the point, $d$ the density of the point, and $\alpha$ the angle between the normal of the point and the direction
+from the point to the scanner. Using the fact that point density decreases proportionally as moving away from the scanner, the following relation should be verified for any pair of points.
 \begin{equation}
 \frac{d_a \times r_a^2}{\cos(\alpha_a)} = \frac{d_b \times r_b^2}{\cos(\alpha_b)}
+\label{eq:dens}
 \end{equation}
-where $d_a$ is the density of $a$ and $d_b$ the density of $b$. This is explained in Figure~\ref{fig:sideview}.
+where $d_a$ is the spatial density of $a$ and $d_b$ the spatial density of $b$. We normalize each spatial density by the cosinus of each normal's point and the optic beam in order to optain the scanner's point of view density which is different from the spatial density. Look at Figure~\ref{fig:sideview} for a visual understanding. The local density of points $a$ and $b$ are known but of course their distances from the scanner are not because they depend on the scanner position. This is why knowing the axis on which the scanner is is interesting because it helps to restrain the area of research. Note that two solutions can be found but we easily discriminate the other one as it is under the point cloud.
 
-For each circular cluster, we pick a sample of N points (in our experiments, N=6 points) with different densities. We then use a non-linear least square solver to determine the position of the scanner, mixing together   equations (15 if N=6). As a result, we retrieve an estimated position of the scanner location.
+For each circular cluster, we pick a sample of $n$ points (in our experiments, $n=6$ points) with different densities. We then build a system of (\ref{eq:dens}) equations using all possible combinations of the $n$ points in pairs. We then use Ceres~\cite{ceres} which is a non-linear least square solver to determine the position of the scanner. As a result, we retrieve an estimated position of the scanner location.
 
 \begin{figure}
   \centering
@@ -370,10 +399,12 @@ For each circular cluster, we pick a sample of N points (in our experiments, N=6
 
 
 \subsection{Results and discussions}
+This method happens to achieve good results. Figure~\ref{fig:ellipse-result} shows an approximation (light blue point) of the real scanner location (green) point. As you can see our approxiamtion is very close to the real scanner's location. By testing on various reference datasets, we found that the error between the correct position and our estimation ranges between $2$ and $20$ cm.
+
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.4]{img/ellipse-result.png}
-  \caption{Light blue point in the box is the correct position, green point next to it is our estimation.}
+  \caption{Green point in the box is the correct position, light blue point next to it is our estimation.}
   \label{fig:ellipse-result}
 \end{figure}
 \begin{figure}[h]
@@ -389,6 +420,5 @@ For each circular cluster, we pick a sample of N points (in our experiments, N=6
   \label{fig:ellipse-multi2}
 \end{figure}
 
-Testing on various reference datasets, we found that the error between the correct position and our estimation ranges between 2 and 20 cm.
-
-This pipeline is particularly suited for multi-scan point clouds. Terrestrial scanners tend to generate most of the points close to their positions. If we consider that scans are not taken in the same close vicinity, high density clusters are disjoint. We confirm with hypothesis in our experiments. Therefore, the coarse detection works well in the multi-scan hypothesis. The same idea applies for the fine position algorithm: most points in the circular cluster come from a single scanner. The few other points coming from different scanners don’t have a significant impact on the local density of the points. That way, the scanner height is correctly detected in a multi-scan setting.
+This pipeline is particularly suited for multi-scan point clouds. Terrestrial scanners tend to generate most of the points close to their positions. If we consider that scans are not taken in the same close vicinity, high density clusters are disjoint. We confirm with hypothesis in our experiments. Therefore, the rough detection works well in the multi-scan hypothesis. The same idea applies for the fine position algorithm: most points in the circular cluster come from a single scanner. The few
+other points coming from different scanners don’t have a significant impact on the local density of the points. That way, the scanner height is correctly detected in a multi-scan setting. Figure~\ref{fig:ellipse-multi1} and Figure~\ref{fig:ellipse-multi2} show some results of this approach on multiscan point clouds.
