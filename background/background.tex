@@ -1,4 +1,4 @@
-\chapter{Basic Concepts}
+\chapter{Background}
 \label{ch:background}
 This chapter introduces the necessary concepts and definitions for a better understanding of the report.
 
@@ -13,12 +13,11 @@ This chapter introduces the necessary concepts and definitions for a better unde
 \end{definition}
 
 \begin{definition}{: Point Cloud}
-  \\A point cloud $P$ of size $s$ is a set $P = \left\lbrace p_i \mid i \in [0, s]  \right\rbrace$
+  \\A point cloud $P$ of size $s$ is a set $P = \left\lbrace p_i \mid i \in [0, s]  \right\rbrace$.
 \end{definition}
 
-\subsection{Translation}
-\subsection{Rotation}
-\subsection{Projection ??}
+A point cloud is said to be whether \emph{static} or \emph{mobile} depending on the \emph{static} nature of the scanner. Mobile scanner means that the instrument is either handheld (like some units used for LIDAR speed detection) or mounted on a vehicle (from SUVs to trailer-mounted instruments to airborne instruments). It generates a point cloud by following a trajectory. Static scanner instead means that the scanner is set up in a locationp and turns on itself.
+
 
 \section{Core algorithms}
 
@@ -70,3 +69,52 @@ We only need to specify the parameters, write the \emph{Cost function} and Ceres
 
 
 \subsection{RANSAC}
+According to \cite{ransac}:
+RANSAC is the abbreviation of Random Sample Consensus. It is a general algorithm that can be used with other parameter estimation methods in order to obtain robust models with a certain probability when the noise in the data doesn't obey the general noise assumption.
+
+Various versions of this algorithm exist, this is why it is said to be \emph{general}. Algorithm~\ref{alg:RANSAC} shows the version used in this report. Generally, RANSAC selects a subset of data samples and uses it to estimate model parameters. Then it determines the samples that are within an error tolerance of the generated model. These samples are considered as agreed with the generated model and called as consensus set of the chosen data samples. Here, the data samples in the consensus as
+behaved as inliers and the rest as outliers by RANSAC. If the count of the samples in the consensus is high enough, the new model is saved. Actually, it repeats this process for a number of iterations and returns the model which has the smallest average error among the generated models.
+
+\begin{algorithm}[tb]
+  \SetAlgoVlined
+  \DontPrintSemicolon
+  \SetKw{Report}{report}
+  \SetArgSty{}
+  \SetKwFunction{RANSAC}{RANSAC}
+  \SetKwProg{Fn}{Function}{}{}
+  \Fn{\RANSAC{$P$, $k$, $n$, $t$}}{
+    \KwIn{
+      \begin{itemize}
+        \item a set of points $P = \left\lbrace p_i \mid i \in [0, s]  \right\rbrace$,
+        \item the number $k$ of iteration,
+        \item the required sample number $n$ for fitting parameters to the mathematical model,
+        \item the tolerated error threshold $t$ when testing parameters on one sample.
+      \end{itemize}
+    }
+    \KwOut{A tuple $\left\langle m, l\right\rangle$ where $m$ is the final parameter estimation and $l$ the associated set of inliers.}
+    \;
+    $m \gets \vec{0}$ \tcp{parameter vector}
+    $l \gets \emptyset$ \tcp{inliers set}
+    $\delta_n \gets \emptyset$ \tcp{set of extracted samples}
+    \For{$i = 0;\ i < k;\ i = i + 1$}{
+      $\delta_n \gets$ random\_sample$(P, n)$ \tcp{Extract $n$ random points from $P$}
+      $m' \gets$ fit\_parameters$(n, \delta_n)$ \tcp{Use an estimation method to fit $m'$ to the mathematical model}
+      $l'\gets \emptyset$\;
+      \For{$j = 0;\ j < s;\ j = j + 1$}{
+        $e \gets$ compute\_error$(m', p_j)$ \tcp{get model error when applied on point $p_j$}
+        \If{$e^2 \leq t^2$} {
+          $l' \gets l' \cup \left\lbrace p_j \right\rbrace$
+        }
+      }
+      \tcc{If it is the most satisfied mathematical model up to now}
+      \If{size\_of$(l') \leq$ size\_of$(l)$} {
+        $l \gets l'$\;
+        $m \gets m'$\;
+      }
+    }
+    \Return{$\left\langle m, l \right\rangle$}\;
+  }
+  \caption{A variation of the RANSAC algorithm used in this report
+    \label{alg:RANSAC}}
+\end{algorithm}
+
