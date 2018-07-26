@@ -12,6 +12,7 @@ the scanner location to orient the normals at each point. In a monoscan point cl
 Therefore, even if \emph{ScanFinder} (Chapter~\ref{ch:scanfinder}) is applied on a LAS format\footnote{A point cloud format that \CC wants to support and which does not store scanner locations in its metadata.} multiscan point cloud in order to retrieve all scanner positions, the reconstruction is still infeasible for \CC. This is where a point cloud visibility algorithm is useful in order to attribute each point to a scanner. Have in mind that a point can be seen by two scanners, especially if there is no physical barrier between them. In this case it is difficult to exactly know which scanner produced the point. But, as this point-scanner attribution is only required for normal orientations, we only need to know which scanner best sees it.
 
 \subsection{Objective}
+\label{subsc:vis-objective}
 As a final step toward supporting point clouds without scanner locations, the algorithm must:
 \begin{itemize}
 \item take as input any 3D point cloud captured from static scanners as well as the location of all scanners,
@@ -28,7 +29,13 @@ As for \emph{ScanFinder} described in Chapter~\ref{ch:scanfinder}, the algorithm
 This section highlight some previous work on the subject of \emph{Point cloud visibility} before describing in detail one approach that we tried and the obtained results.
 
 \subsection{Previous work}
-Visibility in point clouds is a sucessful topic that experienced several publications since the 1960s~\cite{appel, sutherland, funkhouser, greene, bittner}.
+Visibility in point clouds is a topic that experienced several publications since the 1960s~\cite{appel, sutherland, funkhouser, greene, bittner}. Some methods solve this problem in a 3D rendering context by estimating normals and reconstructing surfaces \cite{sainz1, sainz2, wald, wu}. This contrasts with our case as we need visible points in order to reconstruct surfaces. Another common approach is to use z-buffering techniques based on point's depth~\cite{dachsbacher} to reconstruct
+surfaces in a real-time rendering context. Even if this approach can be adapted to compute visibility of all points from all scanner location viewpoints, it is not robust to noisy point clouds.
+
+One elegant approach compute point cloud visibility without surface reconstruction: \cite{vis1}. This approach is invariant to point cloud density and only point coordinates are needed (no normal estimation). However, it is not robust enough againt LiDAR point cloud noises. Although it brings concavity robustness, the same observation is made on the improved version \cite{vis2} after its implementation, see Section~\ref{subsc:noisy}. In both papers, only small\footnote{Compare to LiDAR point clouds.} and enclosed surfaces are reconstructed. They seems to not be fitted for LiDAR point clouds.
+
+In Section~\ref{sc:custom} we describe a custom point cloud visibility algorithm suited for our needs (Section~\ref{subsc:vis-objective}). It is robust to point cloud noise and avoid point occlusions.
+
 
 \subsection{An interesting approach: Visibility of Noisy Point Cloud Data}
 \label{subsc:noisy}
