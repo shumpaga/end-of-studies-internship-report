@@ -29,18 +29,19 @@ As for \emph{ScanFinder} described in Chapter~\ref{ch:scanfinder}, the algorithm
 This section highlight some previous work on the subject of \emph{Point cloud visibility} before describing in detail one approach that we tried and the obtained results.
 
 \subsection{Previous work}
-Visibility in point clouds is a topic that experienced several publications since the 1960s~\cite{appel, sutherland, funkhouser, greene, bittner}. Some methods solve this problem in a 3D rendering context by estimating normals and reconstructing surfaces \cite{sainz1, sainz2, wald, wu}. This contrasts with our case as we need visible points in order to reconstruct surfaces. Another common approach is to use z-buffering techniques based on point's depth~\cite{dachsbacher} to reconstruct
+Visibility in point clouds is a topic that experienced several publications since the 1960s~\cite{appel, sutherland, funkhouser, greene, bittner}. Some methods solve this problem in a 3D rendering context by estimating normals and reconstructing surfaces \cite{sainz1, sainz2, wald, wu}. This contrasts with our case as we need visible points in order to reconstruct surfaces. Another common approach is to use z-buffering techniques based on point depths~\cite{dachsbacher} to reconstruct
 surfaces in a real-time rendering context. Even if this approach can be adapted to compute visibility of all points from all scanner location viewpoints, it is not robust to noisy point clouds.
 
-One elegant approach compute point cloud visibility without surface reconstruction: \cite{vis1}. This approach is invariant to point cloud density and only point coordinates are needed (no normal estimation). However, it is not robust enough againt LiDAR point cloud noises. Although it brings concavity robustness, the same observation is made on the improved version \cite{vis2} after its implementation, see Section~\ref{subsc:noisy}. In both papers, only small\footnote{Compare to LiDAR point clouds.} and enclosed surfaces are reconstructed. They seems to not be fitted for LiDAR point clouds.
+One elegant approach compute point cloud visibility without surface reconstruction: \cite{vis1}. This approach is invariant to point cloud density and only point coordinates are needed (no normal estimation). It uses simple operations: an inversion followed by a convex hull computation. However, it is not robust enough againt LiDAR point cloud noises. An improved version \cite{vis2} has been implemented, see Section~\ref{subsc:noisy}. Although it brings concavity robustness, the same observation is made; it is not robust enough against LiDAR point cloud noise. In both papers, only small\footnote{Compare to LiDAR point clouds.} and enclosed surfaces are reconstructed. They seems to not be fitted for LiDAR point clouds.
 
-In Section~\ref{sc:custom} we describe a custom point cloud visibility algorithm suited for our needs (Section~\ref{subsc:vis-objective}). It is robust to point cloud noise and avoid point occlusions.
-
+In Section~\ref{sc:custom} we describe a custom point cloud visibility algorithm suited for our needs (Section~\ref{subsc:vis-objective}). It is robust to point cloud noise, avoid point occlusions and assigh each point to a scanner.
 
 \subsection{An interesting approach: Visibility of Noisy Point Cloud Data}
 \label{subsc:noisy}
+As previously said, the \emph{Visibility of Noisy Point Cloud Data}~\cite{vis1} paper describes some improvements of \emph{Direct visibility of point sets}~\cite{vis1} for a better handling of noise and concave surfaces in point clouds. This section summerizes both papers.
 
 \subsubsection{Intuition}
+The purpose of \ref{vis1} is to find indentify which point of the point cloud are hidden directly from the point cloud itself. The problem being solved is: Given a set of points $P$ (considered a sampling of continuous surface $S$) and a viewpoint $C$, determine the points in $P$ visible from $C$. They introduced the HPR (Hidden Point Removal) Operator which is made of
 
 \subsubsection{The algorithm}
 
