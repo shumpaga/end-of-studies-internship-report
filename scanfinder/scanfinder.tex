@@ -319,7 +319,7 @@ This method tries to find the scanner location in two steps:
   \item set the scanner on this axis by estimating its height
 \end{itemize}
 
-The $z$ axis on which the scanner is is simply the axis perpendicular to the circular cluster which runs through its center. In order to find this axis, we fit an ellipse arround the circular cluster before finding its center. Once the axis is known, we try to estimate the scanners height. The
+The $z$ axis on which the scanner is is simply the axis perpendicular to the circular cluster which runs through its center. In order to find this axis, we fit an ellipse arround the circular cluster before finding its center. Once the axis is known, we try to estimate the scanners height.
 
 The first key point of this method is that the scanner location is necessary on the axis perpendicular to this elliptic form and which runs through its center. The intuition is that the density of a local point is linked to its distance from the scanner. Figure~\ref{fig:density} shows the variation of density as we go further away from the scanner location. Using multiple points in the high density area, we are able to triangulate the position of the scanner. The real scanner location
 is the best position able to explain the link between the local density of each point and its distance from the scanner.
@@ -339,16 +339,15 @@ In Section~\ref{subsc:fit} we describe how the scanner's axis is found and in  S
 This section describes how we fit an ellipse on a circular cluster before finding its center. We need the ellipse to be as close as possible to the cluster interior.
 For this, the following procedure is followed:
 \begin{itemize}
-\item Extract the closest points to the inside of the cluster.
-\item Perform a PCA on those points to compute their normal. This normal is considered as the ellipse normal.
+\item Extract the closest points $\Delta$ to the cluster interior. We first compute the cluster's centroid $c$. Then, for each point $p_i$ of the cluster, we extract its $k$ nearest neighbors and compute their centroid $c_i$. If $p_i$ is closer to $c$ than $c_i$ with a percentage of error, then it is considered as part of the ellipse edge.
+\item Perform a PCA on $\Delta$ to compute its normal. This normal is considered as the ellipse normal.
 \item Align the normal with the $z$ axis using geometric transformation so that the future ellipse is completely horizontal. This is an important step as we need to use the elliptic two-dimensional equation:
   \begin{equation}
     Ax^2 + Bxy + Cy^2 + Dx + Ey + F = 0
   \end{equation}
-  Aligning the normal with the $z$ axis allows us to ignore the last dimension while fitting the ellipse.
-\item Try to fit an ellipse using a RANSAC algorithm. This enables to filter out outlying points in order to only keep \emph{good} points.
-\item Fit the ellipse using a simple linear least square.
-\item The equation of the ellipse in this 2D projection is known. Compute the ellipse center by generating multiple points on the ellipse using the equation and computing their centroid.
+  This alignment allows us to ignore the last dimension while fitting the ellipse.
+\item Try to fit an ellipse using a RANSAC algorithm. This enables to filter out outlying points in order to only keep \emph{good} points. The RANSAC algorithm is described in Section~\ref{subsc:ransac}. We call the algorithm with $k = 3000$ iterations, $n = 6$ unknowns and $t = d_e * 6$ where $d_e$ is the mean density of $\Delta$.
+\item As the equation of the ellipse in this 2D projection is known, we compute its center's location.
 \end{itemize}
 
 A result of such procedure can be observed in Figure~\ref{fig:ellipse}. The circular cluster has a red color while the fitted ellipse is in green.

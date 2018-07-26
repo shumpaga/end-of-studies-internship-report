@@ -7,7 +7,7 @@ This chapter introduces our custom point cloud visibility algorithm. It starts b
 
 \subsection{Context}
 Currently in \CC, there is a way to still use a point cloud for reconstructing purposes even if the scanner's location information is lost. It gives the user the opportunity to manually set the scanners position on a 3D representation of the point cloud. But, only one position can be set. It requires that the point cloud contains points resulting from \emph{one and only one} scanner\footnote{Also known as monoscan point cloud.}. This is because, during the reconstruction, \CC uses
-the scanner location to orient the normals at each point. In a monoscan point cloud case, it simply orients each normal toward the scanner. But in case of multiscan point cloud, it needs to know for each point, toward which scanner the normal must be oriented, which is less simple to find.
+the scanner location to orient the normals at each point. In a monoscan point cloud case, it simply orients each normal toward the scanner. But in case of multiscan point cloud, it needs to know for each point, toward which scanner the normal must be oriented, which is difficult to find.
 
 Therefore, even if \emph{ScanFinder} (Chapter~\ref{ch:scanfinder}) is applied on a LAS format\footnote{A point cloud format that \CC wants to support and which does not store scanner locations in its metadata.} multiscan point cloud in order to retrieve all scanner positions, the reconstruction is still infeasible for \CC. This is where a point cloud visibility algorithm is useful in order to attribute each point to a scanner. Have in mind that a point can be seen by two scanners, especially if there is no physical barrier between them. In this case it is difficult to exactly know which scanner produced the point. But, as this point-scanner attribution is only required for normal orientations, we only need to know which scanner best sees it.
 
@@ -25,7 +25,7 @@ As for \emph{ScanFinder} described in Chapter~\ref{ch:scanfinder}, the algorithm
 
 \section{Related work}
 \label{sc:related-visibility}
-This section highlight some previous work on the subject of \emph{Point cloud visibility} before describing in detail one approach that we tried and the results obtained.
+This section highlight some previous work on the subject of \emph{Point cloud visibility} before describing in detail one approach that we tried and the obtained results.
 
 \subsection{Previous work}
 Visibility in point clouds is a sucessful topic that experienced several publications since the 1960s~\cite{appel, sutherland, funkhouser, greene, bittner}.
