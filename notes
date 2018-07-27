@@ -1,6 +1,10 @@
 Questions:
 - our point clouds are only produced using LiDAR scanners?
 
+TODO:
+- define set of viewpoints in background
+- define top and bot
+
 Notes:
 - https://georgemdallas.wordpress.com/2013/10/30/principal-component-analysis-4-dummies-eigenvectors-eigenvalues-and-dimension-reduction/
 - https://medium.com/100-days-of-algorithms/day-92-pca-bdb66840a8fb
