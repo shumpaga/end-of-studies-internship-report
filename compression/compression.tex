@@ -29,21 +29,44 @@ This section introduces different approach for point cloud compression. There is
 \cite{qsplat, schnabel, gumhold, zhang}. // FIXME\\
 \cite{brotli, 7zip}
 
+Dire que les compressions arithmétiques ont l'avantage de pouvoir compresser sans se soucier du décompressement, utilisation facile, optimisations géométriques...
+
 \section{A bit-wise compression of point cloud}
 \label{sc:custom-compression}
-This section describes a custom point cloud compression.
+This section describes a custom point cloud compression. It is not exaclty a compression algorithm as it is just a packed representation of the same point cloud.It just ignores useless data reguardind the needed precision. Section~\ref{subsc:overview-packed} explains how this packed representation is obtained while Section~\ref{subsc:compression-benchmark} compares it with Brotli, 7Z (LZMA) and Zip, other arithmetic compression algorithms.
 
 \subsection{Overview}
+\label{subsc:overview-packed}
 
-
-\subsection{Implementation}
 
 \subsection{Comparison with Brotli, 7Z and Zip}
+\label{subsc:compression-benchmark}
+
+\begin{sidewaysfigure}[t]
+    \includegraphics[width=\textwidth]{img/compare1.png}
+    \caption{Caption in landscape to a figure in landscape.}
+    \label{fig:compare-excel}
+\end{sidewaysfigure}
 
 
 \section{Integration of Zip compression}
 \label{sc:integration}
 
 \subsection{Code interface}
+\begin{figure}
+  \centering
+  \begin{lstlisting}
+  namespace Zip
+  {
+      bool compress(std::string const& inputPath, std::string const& outputPath,
+              zip_progress_callback pf = nullptr, void* pProgressData = nullptr);
+
+      bool decompress(std::string const& inputPath, std::string const& outputPath);
+  }
+  \end{lstlisting}
+  \caption{Function using least-square to fit a line to the given set of points.}
+  \label{fig:fitline}
+\end{figure}
+
 
 \subsection{\CC Software}
