@@ -42,7 +42,8 @@ We tried both algorithms. They are described in Section~\ref{subsc:direct} and S
 \label{subsc:direct}
 
 \subsubsection{Overview}
-The purpose of \cite{vis1} is to discard directly from the point cloud, which point is \emph{hidden}. The problem being solved is: Given a set of points $P$ (considered a sampling of continuous surface $S$) and a viewpoint $C$, determine the points in $P$ visible from $C$. They introduced the HPR (Hidden Point Removal) Operator. This operator uses two simple operations:
+The purpose of \cite{vis1} is to detect direclty which points of a point cloud are visible from a specific point of view. The problem being solved can be formalised as such: Given a set of points $P$ (considered a sampling of continuous surface $S$) and a viewpoint $C$, determine the points in $P$ visible from $C$. They introduced the HPR (Hidden Point Removal) Operator. This operator uses two simple operations:
+
 \begin{itemize}
   \item an inversion
   \item a convex hull computation
@@ -169,9 +170,29 @@ FIXME: Add pictures of the algorithm on Monday!!!
 This section describes our custom \emph{disk-based} approach to resolve visibility in point clouds.
 
 \subsection{Overview}
+\label{subsc:custom-overview}
+This method reduces the point cloud visibility problem to ray casting and intersection computations by assigning to each point $p_i$ a \emph{disk}. A \emph{disk} is defined as a tuple $\left\langle p_i, r_d, \vec{n} \right\rangle$. For a specific point $p_i$, here is how the associated disk is computed:
+\begin{itemize}
+  \item $p_i$ is the center of the disk,
+  \item $r_d$ is the the mediane of the distances to the $50$ nearest points of $p_i$,
+  \item $\vec{n}$ is the normal at $p_i$ computed via a PCA (Section~\ref{subsc:pca}) applied on the $50$ nearest points of $p_i$, including itself.
+\end{itemize}
+
+These disks are computed as a preprocessing step. In what follows, all computations are made on these disks. Our custom approach can be compared to ray tracing as for each point $p_i$ of $P$ and each viewpoint $c_k$ it casts a ray $r_a$, computes all intersections and use them to decide which scanner $c_k$ must be associated to $p_i$. We use the Eigen library~\cite{eigenweb} for collisions computation. As our Disks are not in the basic Types of Eigen, a main contributer to ther Eigen library helped us to define our custom Disk data type and how the intersection should be computed using Eigen algorithms. Basically, an intersection of a ray $r_a$ and a disk $d_j$ happens when there exists a projection of the projection of $r_a$ and when the distance of this projection from the disk center is smaller than its ray $r_d$. This ray casting is perfomed from each viewpoint $c_k \in C$ -- scanner locations. Each time a ray is casted, to a specific point $p_i$, from each viewpoint $c_k$, a tuple $\left\langle v, n, d, k \right\rangle$ is kept, which contains:
+\begin{itemize}
+  \item a boolean $v$ telling if $p_i$ is visible from $c_k$,
+  \item the number $n$ of collisions of $r_a$,
+  \item the distance $d$ from $p_i$ and $c_k$,
+  \item the scanner identifier $k$.
+\end{itemize}
+
+For each point, we sort those tuples. When a tuple $\left\langle v_1, n_1, d_1, k_1 \right\rangle$ is compared to another tuple $\left \langle v_2, n_2, d_2, k_3 \right\rangle$, if only one of them  has a positive $v$, it comes before the other. Otherwise, if a tuple has at least two collisions less than the other, it comes before. Finally, if $p_i$ is visible from multiple viewpoints which have almost the same number of collision when casting their respective ray, we associate the closest
+scanner to $p_i$. The sorting criteria have been found empirically. After sorting out the tuples for a specific $p_i$, the value $k$ of the first tuple is the scanner identifier associated to $p_i$.
 
 
 \subsection{Implementation}
+Algorithm~\ref{alg:disk-based} shows our custom algorithm for computing visibility in point clouds, especially LiDAR ones. As explained in Section~\ref{subsc:custom-overview}, we iterate over all points, all scanners, casts a ray between each point and scanner and compute collisions. Actually, we use an improved version of this algorithm which assign different disks to each point, varying the disk ray. The ray is casted with each disk sizes. This slows the algorithm in a significant way
+but helps to have better visibility results.
 \begin{algorithm}[tb]
   \SetAlgoVlined
   \DontPrintSemicolon
@@ -224,3 +245,44 @@ This section describes our custom \emph{disk-based} approach to resolve visibili
 
 
 \subsection{Results and discussions}
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.35]{img/custom-result1.png}
+  \caption{A view of the custom visibility algorithm result on a point cloud $P_1$: points colored with the same color are assigned to the same viewpoint--scanner location. There are four (4) colors, thus four (4) scanners in the point cloud.}
+  \label{fig:custom-result1}
+\end{figure}
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.35]{img/custom-result2.png}
+  \caption{Another view of the custom visibility algorithm result on the same point cloud $P_1$: points colored with the same color are assigned to the same viewpoint--scanner location. There are four (4) colors, thus four (4) scanners in the point cloud.}
+  \label{fig:custom-result2}
+\end{figure}
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.35]{img/custom-result3.png}
+  \caption{A view of the custom visibility algorithm result on a point cloud $P_2$: points colored with the same color are assigned to the same viewpoint--scanner location. There are two (2) colors, thus two (2) scanners in the point cloud.}
+  \label{fig:custom-result3}
+\end{figure}
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.35]{img/custom-result4.png}
+  \caption{Another view of the custom visibility algorithm result on the same point cloud $P_2$: points colored with the same color are assigned to the same viewpoint--scanner location. There are two (2) colors, thus two (2) scanners in the point cloud.}
+  \label{fig:custom-result4}
+\end{figure}
+
+\begin{table}[]
+  \centering
+  \begin{tabular}{l|c|c}
+    Point Cloud & Number of points & Error (percent) \\\hline
+    Pump: & 604,638 &  0.19631 \\\hline
+    Parking: & 5,188,752 & 2.70431 \\\hline
+    Road: & 2,220,166 & 1.75293 \\\hline
+    Ashlan8+11 & 23,484,370 & 0.69309
+  \end{tabular}
+  \caption{The percentage of error of our Disk-based approach on different point cloud sets with their respective sizes.}
+  \label{table:vis-error}
+\end{table}
+Figure~\ref{fig:custom-result1} and Figure~\ref{fig:custom-result2} show two different views of the result of the custom visibility algorithm applied on a point cloud $P_1$. In general the method seems to work well. Points near one scanner are coloured with a unique color. Figure~\ref{fig:custom-result2} shows a particular case where the method works well. Assume the current viewpoint as being at the scanner associated to the red color. The algorithm detects that a wall far away (in blue) is hidden by a closer wall (in red). Figure~\ref{fig:custom-result3} and Figure~\ref{fig:custom-result4} shows two other views of the result obtained on another point cloud $P_2$. Table~\ref{table:vis-error} shows the percentage of error of our method applied on different point clouds. As you can see, it has less that $3$ percent of error on those point clouds. In summary, this custom approach meets all of our requirements instead of the running time. For instance, it almost took 6 days to compute visibility of a point cloud named Big Stadium. Figure~\ref{} (FIXME) shows a complete reconstruction of this point cloud. This algorithm was written as a prototype in order to validate our intuitions. Several improvements can be made on the algorithm, such as some tasks parallelization. The algorithm will certainly be optimized before being integrated to \CC.
+
+\subsection{Complete reconstruction using \emph{ScanFinder} and \emph{DiskBasedVisibility}}
+FIXME: Add pictures.
