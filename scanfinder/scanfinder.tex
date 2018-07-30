@@ -1,14 +1,12 @@
 \chapter{Scan Finder}
 \label{ch:scanfinder}
-This chapter describes \emph{Scan Finder}, an algorithm that can be used to retrieve all scanners position of a point cloud,  if there are any, as long as it is static. Firstly, Section~\ref{sc:spec-scanfinder} reviews the context which brings this need and describes some characteristics of the expected solution. Then, Section~\ref{sc:related-scanfinder} reminds that there is no previous work related to this subject. Finally, Section~\ref{sc:highdens} describes a first step toward scanner location
+This chapter describes \emph{Scan Finder}, an algorithm that can be used to retrieve all scanner positions of a point cloud,  if there are any, as long as it is static. Firstly, Section~\ref{sc:spec-scanfinder} reviews the context which brings this need and describes some characteristics of the expected solution. Then, Section~\ref{sc:related-scanfinder} reminds that there is no previous work related to this subject. Finally, Section~\ref{sc:highdens} describes a first step toward scanner location
 finding before showing and discussing the results of two different approaches described respectively in Section~\ref{sc:grid-pattern} and Section~\ref{sc:elliptic}. To be clear, Section~\ref{sc:highdens} is a common first step to both methods.
-
-
 
 \section{Specifications}
 \label{sc:spec-scanfinder}
 \subsection{Context}
-\CC started to support point cloud reconstruction two (2) years ago. Today it even provides a hybrid processing mode which gives the opportuniy to combine the best of both words, photos and point clouds, in order to have a better precision. However, a recurring problem observed among \CC users is the impossibility to use the software after losing some metadata, specifically, scanners location. This is particulary problematic because usually, \CC users subcontract point cloud production to private companies which can charge them again for new exports (provided that they still have the point clouds). To enable customers to use their \emph{defective} point clouds, the graphic interface of \CC allows to specify a scanner location by hand by positioning it in a 3D representation of the point cloud. But, it does not work with merged scans; only one scanner location can be specified. Usually, users do not know the location and even if they know, the reconstruction is subjected to too much errors.
+\CC started to support point cloud reconstruction two (2) years ago. Today it even provides a hybrid processing mode which gives the opportuniy to combine the best of both words, photos and point clouds, in order to have a better precision. However, a recurring problem observed among \CC users is the impossibility to use the software after losing some metadata, specifically, scanners location. This is particulary problematic because usually, \CC users subcontract point cloud production to private companies which can charge them again for new exports (provided that they still have the point clouds). To enable customers to use their \emph{defective} point clouds, the graphic interface of \CC allows to specify a scanner location by hand by positioning it in a 3D representation of the point cloud. But, it does not work with merged scans ; only one scanner location can be specified. Usually, users do not know the location and even if they know, the reconstruction is subjected to too much errors.
 
 This is how the need for an algorithm to automatically find scanners positions in a point cloud is born. In addition, with such algorithm, \CC will have the possibility to enhance the set of supported file formats. Currently, it supports file formats such as \emph{PTX}, \emph{e57}, \emph{PLY}, \emph{POD}, each of them being able to store scanners positions. But not all file formats are able to do it. For instance, \emph{LAS} file format is not currently accepted as input because it does not provide any means of storing scanners location in metadata. Supporting more input file formats is also a good point of interest for \CC users.
 
@@ -190,7 +188,7 @@ the objectif is to indentify grid-patterns. To do so, we use least square method
       return mat.fullPivHouseholderQr().solve(vec);
     }
   \end{lstlisting}
-  \caption{Line fitting to a set, using least-square method.}
+  \caption{Line fitting to a set, using Eigen's~\cite{eigenweb} least-square solver.}
   \label{fig:fitline}
 \end{figure}
 
