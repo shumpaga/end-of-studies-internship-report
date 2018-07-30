@@ -61,7 +61,7 @@ A spherical inversion based on the depth of the points put the nearest points (m
 \begin{figure}
   \centering
   \includegraphics[scale=0.35]{img/hpr-r.png}
-  \caption{The variation of, in one hand the spherical inversion ray $R$ and in the other, the percentage of visibility detection error.}
+  \caption{The variation of: spherical inversion ray $R$, percentage of visibility detection error.}
   \label{fig:hpr-r}
 \end{figure}
 
@@ -69,28 +69,27 @@ A spherical inversion based on the depth of the points put the nearest points (m
   \centering
     \begin{subfigure}[t]{0.5\textwidth}
       \centering
-	\includegraphics[height=2.5in]{img/hpr1.png}
+	\includegraphics[height=3in]{img/hpr1.png}
     \end{subfigure}%
     ~
     \begin{subfigure}[t]{0.5\textwidth}
       \centering
-	\includegraphics[height=2.5in]{img/hpr2.png}
+	\includegraphics[height=3in]{img/hpr2.png}
     \end{subfigure}
     \caption{Different point of views of the spherical inversion of the Figure~\ref{fig:highdens} using $R = R_\text{max}$.}
     \label{fig:hpr1}
 \end{figure*}
-
-\begin{figure}
-  \centering
-  \includegraphics[scale=0.45]{img/hpr3.png}
-  \caption{A view of the visibile points after convex hull computation and back projection on Figure~\ref{fig:hpr1}.}
-  \label{fig:hpr3}
-\end{figure}
 \begin{figure}
   \centering
   \includegraphics[scale=0.6]{img/hpr4.png}
-  \caption{A topview of the visibile points after convex hull computation and back projection on Figure~\ref{fig:hpr1}.}
+  \caption{A topview of the visibile points after back propagation of convex hull computation (Figure~\ref{fig:hpr1}).}
   \label{fig:hpr4}
+\end{figure}
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.45]{img/hpr3.png}
+  \caption{Another view of the visibile points after back projection of convex hull computation (Figure~\ref{fig:hpr1}).}
+  \label{fig:hpr3}
 \end{figure}
 
 
@@ -109,7 +108,7 @@ As previously said, the \emph{Visibility of Noisy Point Cloud Data}~\cite{vis2} 
 \begin{figure}
   \centering
   \includegraphics[scale=0.2]{img/epsilon.png}
-  \caption{The guard zone (in yellow): a region in space from which the visibility cannot be reliably estimated.}
+  \caption{Region space (in yellow) from which the visibility cannot be reliably estimated, this is a guard zone.}
   \label{fig:epsilon}
 \end{figure}
 
@@ -189,7 +188,7 @@ The algorithm is shown in Algorithm~\ref{alg:RobustHPR}. Note that the function 
 \begin{figure}
   \centering
   \includegraphics[scale=0.35]{img/rhpr-result.png}
-  \caption{Result comparing HP$R_\text{max}$, HP$R_\text{opt}$ and Robust HPR}
+  \caption{Result comparing HP$R_\text{max}$, HP$R_\text{opt}$ and Robust HPR.}
   \label{fig:rhpr-result}
 \end{figure}
 
@@ -281,43 +280,44 @@ slows the algorithm in a significant way, but instead, helps to have better visi
 \begin{figure}
   \centering
   \includegraphics[scale=0.3]{img/positive-negative.png}
-  \caption{A visual representation of a point cloud based on Table~\ref{fig:positive-negative}'s point categories. Find true positive in green, true negative in black, false positive in red and false negative in blue}
+  \caption{A visual representation of the Parking point cloud (scanner 0), sowing Table~\ref{fig:positive-negative} data. Find true positive in green, true negative in black, false positive in red and false negative in blue}
   \label{fig:positive-negative}
 \end{figure}
 \begin{figure}
   \centering
   \includegraphics[scale=0.35]{img/custom-result1.png}
-  \caption{A view of the custom visibility algorithm result on a point cloud $P_1$: points colored with the same color are assigned to the same viewpoint--scanner location. There are four (4) colors, thus four (4) scanners in the point cloud.}
+  \caption{A first \emph{DiskBasedVisibility} result: points colored with the same color are assigned to the same viewpoint--scanner location. There are four (4) colors, thus four (4) scanners in the point cloud.}
   \label{fig:custom-result1}
 \end{figure}
 \begin{figure}
   \centering
   \includegraphics[scale=0.35]{img/custom-result2.png}
-  \caption{Another view of the custom visibility algorithm result on the same point cloud $P_1$: points colored with the same color are assigned to the same viewpoint--scanner location. There are four (4) colors, thus four (4) scanners in the point cloud.}
+  \caption{Another view of Figure~\ref{fig:custom-result1} result: points colored with the same color are assigned to the same viewpoint--scanner location. There are four (4) colors, thus four (4) scanners in the point cloud.}
   \label{fig:custom-result2}
 \end{figure}
 \begin{figure}
   \centering
   \includegraphics[scale=0.35]{img/custom-result3.png}
-  \caption{A view of the custom visibility algorithm result on a point cloud $P_2$: points colored with the same color are assigned to the same viewpoint--scanner location. There are two (2) colors, thus two (2) scanners in the point cloud.}
+  \caption{A second \emph{DiskBasedVisibility} result: points colored with the same color are assigned to the same viewpoint--scanner location. There are two (2) colors, thus two (2) scanners in the point cloud.}
   \label{fig:custom-result3}
 \end{figure}
 \begin{figure}
   \centering
   \includegraphics[scale=0.35]{img/custom-result4.png}
   \caption{Another view of the custom visibility algorithm result on the same point cloud $P_2$: points colored with the same color are assigned to the same viewpoint--scanner location. There are two (2) colors, thus two (2) scanners in the point cloud.}
+  \caption{Another view of Figure~\ref{fig:custom-result3} result: points colored with the same color are assigned to the same viewpoint--scanner location. There are two (2) colors, thus two (2) scanners in the point cloud.}
   \label{fig:custom-result4}
 \end{figure}
 \begin{figure}
   \centering
   \includegraphics[scale=0.35]{img/complete-result1.png}
-  \caption{A 3D reconstruction view of a point cloud after using \emph{ScanFinder} and \emph{DiskBasedVisivility}}
+  \caption{A 3D reconstruction view of a point cloud after using \emph{ScanFinder} and \emph{DiskBasedVisivility}.}
   \label{fig:complete-result1}
 \end{figure}
 \begin{figure}
   \centering
   \includegraphics[scale=0.35]{img/complete-result2.png}
-    \caption{Another 3D reconstruction view of the same point cloud as Figure~\ref{fig:complete-result1} after using \emph{ScanFinder} and \emph{DiskBasedVisivility}}
+    \caption{Another 3D reconstruction view of the same point cloud as Figure~\ref{fig:complete-result1} after using \emph{ScanFinder} and \emph{DiskBasedVisivility}.}
   \label{fig:complete-result2}
 \end{figure}
 

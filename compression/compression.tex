@@ -88,7 +88,7 @@ This section describe the integration of Zip compression to \CC. Note that compr
       bool decompress(std::string const& inputPath, std::string const& outputPath);
   }
   \end{lstlisting}
-  \caption{Function using least-square to fit a line to the given set of points.}
+  \caption{Prototype of functions wrapping the ZipLib libratry.}
   \label{fig:code-interface}
 \end{figure}
 ZipLib was already integrated in the third parties of \CC. No new library linkage has been set up. \CC uses ZipLib in a completely different context. We implemented two code interface methods, for easy use of ZipLib. Figure~\ref{fig:code-interface} shows the prototype of both methods. The  \emph{compress} methods can be called with a callback function for monitoring the file compression. This is used for the progression bar appearing when exporting  \emph{blocks} in \CC (see Figure~\ref{fig:export3}).

@@ -43,7 +43,7 @@ This section explains a common first step to methods described in Section~\ref{s
 \begin{figure}
   \centering
   \includegraphics[scale=1]{img/lidar.jpg}
-  \caption{Example of a LiDAR scanner.}
+  \caption{A LiDAR scanner.}
   \label{fig:lidar}
 \end{figure}
 
@@ -69,21 +69,21 @@ Figure~\ref{fig:density}. To conclude, extracting the most dense areas is intere
 \begin{figure}
   \centering
   \includegraphics[scale=0.44]{img/highdens.png}
-  \caption{The result of the high density extraction of a point cloud.}
+  \caption{Dense area extraction of a point cloud.}
   \label{fig:highdens}
 \end{figure}
 
 \begin{figure}
   \centering
   \includegraphics[scale=0.5]{img/cluster.png}
-  \caption{The result after clustering dense points of Figure~\ref{fig:highdens}.}
+  \caption{Clustering of Figure~\ref{fig:highdens} dense points.}
   \label{fig:cluster}
 \end{figure}
 
 \begin{figure}
   \centering
   \includegraphics[scale=0.5]{img/circular.png}
-  \caption{The result after trying to identify circular clusters of Figure~\ref{fig:cluster}.}
+  \caption{Identification of Figure~\ref{fig:cluster} circular clusters.}
   \label{fig:circular}
 \end{figure}
 
@@ -110,7 +110,7 @@ constraints to solve. The idea is that only the real scanner's location is able 
 \begin{figure}
   \centering
   \includegraphics[scale=0.5]{img/grid1.png}
-  \caption{Example of a grid pattern. As you can see there is a constant offset between each vertical line and each horizontal lines. Note that the offset between columns is not necessary the same than between lines.}
+  \caption{A grid pattern: observe the constant offset between each vertical line and each horizontal lines. Note that the offset between columns is not necessary the same as between lines.}
   \label{fig:grid1}
 \end{figure}
 
@@ -190,7 +190,7 @@ the objectif is to indentify grid-patterns. To do so, we use least square method
       return mat.fullPivHouseholderQr().solve(vec);
     }
   \end{lstlisting}
-  \caption{Function using least-square to fit a line to the given set of points.}
+  \caption{Line fitting to a set, using least-square method.}
   \label{fig:fitline}
 \end{figure}
 
@@ -207,7 +207,7 @@ the objectif is to indentify grid-patterns. To do so, we use least square method
         \includegraphics[height=2.5in]{img/grid-cols.png}
         \caption{Column clustering performed on two patches.}
     \end{subfigure}
-    \caption{Example of columns and lines clustering in order to identify grid-patterns.}
+    \caption{Grid-pattern identification: columns and lines clustering result.}
     \label{fig:line-col-cluster}
 \end{figure*}
 
@@ -392,7 +392,7 @@ For each circular cluster, we pick a sample of $n$ points (in our experiments, $
     \draw[red, <-, line width=0.3mm] (d) -- node[left, near start]{$\vec{n}_b$}(b);
     \draw[blue, <-, line width=0.3mm] (c) -- node[right, near start]{$\vec{n}_a$}(a);
   \end{tikzpicture}
-  \caption{A side view of the ellipse and two spheres intersecting at the scanner position $s$ and their respective centers $a$ and $b$. We have the relation $\frac{d_a \times r_a^2}{\cos(\alpha_a)} = \frac{d_b \times r_b^2}{\cos(\alpha_b)}$ where $d_a$ is the density of $a$ and $d_b$ the density of $b$.}
+  \caption{A side view of: the ellipse, two spheres self-intersecting at the scanner position $s$, their respective centers $a$ and $b$. We have the relation $\frac{d_a \times r_a^2}{\cos(\alpha_a)} = \frac{d_b \times r_b^2}{\cos(\alpha_b)}$ where $d_a$ is the density of $a$ and $d_b$ the density of $b$.}
   \label{fig:sideview}
 \end{figure}
 
@@ -403,19 +403,19 @@ This method happens to achieve good results. Figure~\ref{fig:ellipse-result} sho
 \begin{figure}
   \centering
   \includegraphics[scale=0.4]{img/ellipse-result.png}
-  \caption{Green point in the box is the correct position, light blue point next to it is our estimation.}
+  \caption{Scanner location (green point) approximation (light blue point) using \emph{ScanFinder}. }
   \label{fig:ellipse-result}
 \end{figure}
 \begin{figure}
   \centering
   \includegraphics[scale=0.3]{img/ellipse-multi1.png}
-  \caption{Multiple locations detected in a large point cloud.}
+  \caption{Multiple scanner locations detected in a large point cloud.}
   \label{fig:ellipse-multi1}
 \end{figure}
 \begin{figure}
   \centering
   \includegraphics[scale=0.3]{img/ellipse-multi2.png}
-  \caption{Multiple locations detected in another large point cloud.}
+  \caption{Multiple scanner locations detected in another large point cloud.}
   \label{fig:ellipse-multi2}
 \end{figure}
 
