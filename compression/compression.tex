@@ -29,7 +29,7 @@ Some point cloud compression algorithms compress the underlying mesh instead of 
 
 One of the earliest method adressing efficient point cloud representation is the Qsplat rendering system of \cite{qsplat}. Each node of the point cloud is quantized to fourty-eight (48) bits. Our approach described in Section~\ref{sc:custom-compression} is inspired by this quantization.
 
-\section{A bit-wise compression of point cloud}
+\section{A bit-wise compression of point clouds}
 \label{sc:custom-compression}
 This section describes a custom point cloud compression. It is not exaclty a compression algorithm as it is just a packed representation of the same point cloud used as input to Brotli~\cite{brotli}, a compression algorithm. This method filters point cloud data by ignoring useless data reguardind the needed precision. Section~\ref{subsc:overview-packed} explains how this packed representation is obtained before calling Brotli while Section~\ref{subsc:compression-benchmark} compares it with Brotli itself, 7Z (LZMA) and Zip.
 
@@ -115,7 +115,7 @@ ZipLib was already integrated in the third parties of \CC. No new library linkag
   \label{fig:export3}
 \end{figure}
 
-Figure~\ref{fig:export1} and Figure~\ref{fig:export2} show visuals of the new feature integrated. Two new possibility are available:
+Figure~\ref{fig:export1} and Figure~\ref{fig:export2} show visuals of the new feature integrated. Two new possibilities are now available:
 \begin{itemize}
 \item compress the XML file by selecting \emph{BlocksExchange XMLZ format} (Figure~\ref{fig:export1}),
 \item compress the point cloud by selecting \emph{Yes - Zip files} (Figure~\ref{fig:export2}).

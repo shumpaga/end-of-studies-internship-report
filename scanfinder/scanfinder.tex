@@ -339,7 +339,7 @@ In Section~\ref{subsc:fit} we describe how the scanner's axis is found and in  S
 This section describes how we fit an ellipse on a circular cluster before finding its center. We need the ellipse to be as close as possible to the cluster interior.
 For this, the following procedure is followed:
 \begin{itemize}
-\item Extract the closest points $\Delta$ to the cluster interior. We first compute the cluster's centroid $c$. Then, for each point $p_i$ of the cluster, we extract its $k$ nearest neighbors and compute their centroid $c_i$. If $p_i$ is closer to $c$ than $c_i$ with a percentage of error, then it is considered as part of the ellipse edge.
+\item Extract the closest points $\Delta$ to the cluster interior. We first compute the cluster's centroid $c$. Then, for each point $p_i$ of the cluster, we extract its $k$ nearest neighbors and compute their centroid $c_i$. If $p_i$ is closer to $c$ than $c_i$ with a tolerated percentage of error, then it is considered as part of the ellipse edge.
 \item Perform a PCA on $\Delta$ to compute its normal. This normal is considered as the ellipse normal.
 \item Align the normal with the $z$ axis using geometric transformation so that the future ellipse is completely horizontal. This is an important step as we need to use the elliptic two-dimensional equation:
   \begin{equation}
