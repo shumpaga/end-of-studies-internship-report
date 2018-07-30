@@ -107,7 +107,7 @@ This section explains one approach we tried in order to solve the problem. Befor
 As said in Section~\ref{subsc:lidar}, LiDAR scanners perfom two kind of rotations. These constant vertical and horizontal rotation angles reveal some grid patterns on surfaces perpendicular to the ground\footnote{To be precise, perpendicular to the surface on which the scanner is installed.}. Figure~\ref{fig:grid1} shows an example of a grid pattern that can be found in point clouds. The purpose here is to find, for a single grid pattern, a relation between all constant rotation angles and the scanner's position. Therefore, this relation can be applied with all possible grid patterns in the point clouds, leading to a problem with a huge set of
 constraints to solve. The idea is that only the real scanner's location is able to explain in the best way these constant rotation angles.
 
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics[scale=0.5]{img/grid1.png}
   \caption{Example of a grid pattern. As you can see there is a constant offset between each vertical line and each horizontal lines. Note that the offset between columns is not necessary the same than between lines.}
@@ -283,7 +283,7 @@ This is a non-linear least-square problem which can be resolved using the Ceres 
   \label{fig:grid-problem}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics[scale=0.3]{img/grid-result.jpg}
   \caption{An approximation of the scanner location using the grid-pattern method. The real scanner location is highlighted by the upper arrow while the approximation is highlighted by the lower one.}
@@ -329,7 +329,7 @@ In Section~\ref{subsc:fit} we describe how the scanner's axis is found and in  S
 
 \subsection{Fitting ellipse}
 \label{subsc:fit}
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics[scale=0.4]{img/ellipse.png}
   \caption{Ellipse fitted on a circular cluster.}
@@ -400,19 +400,19 @@ For each circular cluster, we pick a sample of $n$ points (in our experiments, $
 \subsection{Results and discussions}
 This method happens to achieve good results. Figure~\ref{fig:ellipse-result} shows an approximation (light blue point) of the real scanner location (green) point. As you can see our approxiamtion is very close to the real scanner's location. By testing on various reference datasets, we found that the error between the correct position and our estimation ranges between $2$ and $20$ cm.
 
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics[scale=0.4]{img/ellipse-result.png}
   \caption{Green point in the box is the correct position, light blue point next to it is our estimation.}
   \label{fig:ellipse-result}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics[scale=0.3]{img/ellipse-multi1.png}
   \caption{Multiple locations detected in a large point cloud.}
   \label{fig:ellipse-multi1}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics[scale=0.3]{img/ellipse-multi2.png}
   \caption{Multiple locations detected in another large point cloud.}
