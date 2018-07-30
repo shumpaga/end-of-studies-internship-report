@@ -135,7 +135,7 @@ where $n_i$ is a unit vector oriented in a uniformly chosen random direction and
   \item an iterative method for concavity robustness. It varies $R$ value within the range. For each $R$ value it computes points visibility and update points weight based on the number of times they are tagged as visible. The idea is that high curvatures become visible at higher values while others (convex, oblique, planar) are consistently visible. This is the function $f$ used in the Algorithm~\ref{alg:RobustHPR}.
 \end{itemize}
 
-The algorithm is shown in Algorithm~\ref{alg:RobustHPR}. Note that the function $f$ (which computes the ray $R$) is not formally written. It is the last bullet point above on the improvements of \cite{vis2} over \cite{vis1}. Instead it is describe above. Of course, the following algorithm is called for each scanner location $C$. When a point is seen by multiple scanners, we choose the closer one.
+The algorithm is shown in Algorithm~\ref{alg:RobustHPR}. Note that the function $f$ (which computes the ray $R$) is not formally written. It is the last bullet point above on the improvements of \cite{vis2} over \cite{vis1}. Instead it is described above. Of course, the following algorithm is called for each scanner location $C$. When a point is seen by multiple scanners, we choose the closer one.
 
 \begin{algorithm}[tb]
   \SetAlgoVlined
