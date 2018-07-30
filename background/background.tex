@@ -17,7 +17,7 @@ This chapter introduces the necessary concepts and definitions for a better unde
   \\A point cloud $P$ of size $s$ is a set $P = \left\lbrace p_i \mid i \in [0, s]  \right\rbrace$.
 \end{definition}
 
-A point cloud is said to be whether \emph{static} or \emph{mobile} depending on the \emph{static} nature of the scanner. Mobile scanner means that the instrument is either handheld (like some units used for LIDAR speed detection) or mounted on a vehicle (from SUVs to trailer-mounted instruments to airborne instruments). It generates a point cloud by following a trajectory. Static scanner instead means that the scanner is set up in a locationp and turns on itself.
+A point cloud is said to be whether \emph{static} or \emph{mobile} depending on the \emph{static} nature of the scanner. Mobile scanner means that the instrument is either handheld (like some units used for LIDAR speed detection) or mounted on a vehicle (from SUVs to trailer-mounted instruments to airborne instruments). It generates a point cloud by following a trajectory. Static scanner instead means that the scanner is set up in a location and turns on itself.
 
 
 \section{Core algorithms}
@@ -33,7 +33,7 @@ We are not going to explain in detail what a PCA is as it is very common and not
 \\ Let $P_a$ be a set of points of size $s_a$. To perform \textit{PCA($P_a$):}
 \begin{itemize}
 \item we compute the centroid of $P_a$, noted $\bar{p_a}$
-\item we compute the covariance matrix $C$ which is the symetric $3 \times 3$ positive semi-definite matrix:
+\item we compute the covariance matrix $C$ which is the symmetric $3 \times 3$ positive semi-definite matrix:
 \begin{equation*}
 C = \sum_{p \in P_a} (p - \bar{p_a}) \otimes (p - \bar{p_a}) \text{,       where $\otimes$ denotes the outer product vector operator.}
 \end{equation*}
@@ -42,23 +42,23 @@ C = \sum_{p \in P_a} (p - \bar{p_a}) \otimes (p - \bar{p_a}) \text{,       where
 \end{itemize}
 \end{definition}
 
-In \cite{hoppe}, Hoppe et al. use PCA to determine the normal of a tangent plane. Similarly in this report, we use PCA for two purposes: detect if a set of points are plannar by computing their normal's direction or simply find the normal's direction at a specific point using its neighbours. If a set of points forms a plane, we choose its normal to be either $\vec{v}_3$ or $-\vec{v}_3$. It is the direction with less data variation and in a perfect word -- a perfect plane alignment, the projection of all points onto it gives the same value. This means that  $\mu = 0$. Now if $P_a$ is formed of $p_i$ and its $k$-neighbouring points, then $\vec{v}_3$ or $-\vec{v}_3$ is the normal at $p_i$. We empirically deduced fifty (50) to be the ideal value for $k$.
+In \cite{hoppe}, Hoppe et al. use PCA to determine the normal of a tangent plane. Similarly in this report, we use PCA for two purposes: detect if a set of points are planar by computing their normal's direction or simply find the normal's direction at a specific point using its neighbors. If a set of points forms a plane, we choose its normal to be either $\vec{v}_3$ or $-\vec{v}_3$. It is the direction with less data variation and in a perfect word -- a perfect plane alignment, the projection of all points onto it gives the same value. This means that  $\mu = 0$. Now if $P_a$ is formed of $p_i$ and its $k$-neighboring points, then $\vec{v}_3$ or $-\vec{v}_3$ is the normal at $p_i$. We empirically deduced fifty (50) to be the ideal value for $k$.
 
 
 \subsection{Least Square Methods}
 \label{subsc:least}
-Least Square solving is a usual approach of regression analysis to approximate the solution of overdetermined systems (with more equations than unknowns). The problem can be described as follows. Let us assume a model of the form
+Least Square solving is a usual approach of regression analysis to approximate the solution of over-determined systems (with more equations than unknowns). The problem can be described as follows. Let us assume a model of the form
 \begin{equation}
   y = f(z; x_1; ..., x_n)
   \label{eq:leastmodel}
 \end{equation}
-where $f$ describes a relation between $x_1, ..., x_n$, $z$ is the control variable and $y$ is the expected response to $z$. After $m$ experiments, $(m \geq n)$, $m$ observed quantities $(z_i, y_i), i \in [1, m]$ are collected. The purpose therfore is to find the paramaters $x_1, ..., x_n$ so that all $z_i, y_i$ satisfy at best (\ref{eq:leastmodel}) . ``Least squares" means that the overall solution minimizes the sum of the squares of the residuals made in the results of every single equation.
+where $f$ describes a relation between $x_1, ..., x_n$, $z$ is the control variable and $y$ is the expected response to $z$. After $m$ experiments, $(m \geq n)$, $m$ observed quantities $(z_i, y_i), i \in [1, m]$ are collected. The purpose therefore is to find the parameters $x_1, ..., x_n$ so that all $z_i, y_i$ satisfy at best (\ref{eq:leastmodel}) . ``Least squares" means that the overall solution minimizes the sum of the squares of the residuals made in the results of every single equation.
 The most important application is in data fitting. The best fit in the least-squares sense minimizes the sum of squared residuals, a residual being: the difference between an observed value, and the fitted value provided by a model.
 
 Least-squares fall into two categories: linear and non-linear least squares, depending on whether or not the residuals are linear in all unknowns.
 
 \subsubsection{Linear}
-To solve linear least square problems, we use the Eigen library~\cite{eigenweb}. Consider an overdetermined system of equations, say $Ax = b$. Although it has no precise solution, it makes sense to search for the vector $x$ which is closest to being a solution, in the sense that the difference $Ax - b$ is as small as possible. This $x$ is called the least square solution (if the Euclidean norm is used). Provide Eigen with $A$ and $b$ and it will approximate the solution $x$.
+To solve linear least square problems, we use the Eigen library~\cite{eigenweb}. Consider an over-determined system of equations, say $Ax = b$. Although it has no precise solution, it makes sense to search for the vector $x$ which is closest to being a solution, in the sense that the difference $Ax - b$ is as small as possible. This $x$ is called the least square solution (if the Euclidean norm is used). Provide Eigen with $A$ and $b$ and it will approximate the solution $x$.
 
 \subsubsection{Non-linear}
 In case of non-linear least square problems, we use the Ceres Solver~\cite{ceres}. Ceres Solver is an open source C++ library for modeling and solving large, complicated optimization problems. Ceres can solve bounds constrained robustified non-linear least squares problems of the form:

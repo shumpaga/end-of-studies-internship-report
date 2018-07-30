@@ -18,7 +18,7 @@ As a final step toward supporting point clouds without scanner locations, the al
 \item take as input any 3D point cloud captured from static scanners as well as the location of all scanners,
 \item be invariant to differences between scanners, such as: density, noise, rotation angle,
 \item find for each point the scanner which best sees it, not necessary the scanner which produced it,
-\item have a reasonnable running time.
+\item have a reasonable running time.
 \end{itemize}
 
 As for \emph{ScanFinder} described in Chapter~\ref{ch:scanfinder}, the algorithm is not expected to work with mobile point clouds.
@@ -42,14 +42,14 @@ We tried both algorithms. They are described in Section~\ref{subsc:direct} and S
 \label{subsc:direct}
 
 \subsubsection{Overview}
-The purpose of \cite{vis1} is to detect direclty which points of a point cloud are visible from a specific point of view. The problem being solved can be formalised as such: Given a set of points $P$ (considered a sampling of continuous surface $S$) and a viewpoint $C$, determine the points in $P$ visible from $C$. They introduced the HPR (Hidden Point Removal) Operator. This operator uses two simple operations:
+The purpose of \cite{vis1} is to detect directly which points of a point cloud are visible from a specific point of view. The problem being solved can be formalized as such: Given a set of points $P$ (considered a sampling of continuous surface $S$) and a viewpoint $C$, determine the points in $P$ visible from $C$. They introduced the HPR (Hidden Point Removal) Operator. This operator uses two simple operations:
 
 \begin{itemize}
   \item an inversion
   \item a convex hull computation
 \end{itemize}
 
-A spherical inversion based on the depth of the points put the nearest points (must of them visible) further away. The second step on the right, based on a convex hull computation, detects visible points. A point lying on this convex hull is considered as visible. Even if a visible point is far in the real domain and closer in the inverted domain it should be on this convex hull, as long as it is visible -- no points behind it, no points hidding it.
+A spherical inversion based on the depth of the points put the nearest points (must of them visible) further away. The second step on the right, based on a convex hull computation, detects visible points. A point lying on this convex hull is considered as visible. Even if a visible point is far in the real domain and closer in the inverted domain it should be on this convex hull, as long as it is visible -- no points behind it, no points hiding it.
 
 \subsubsection{Results and discussions}
 \begin{figure}
@@ -82,22 +82,22 @@ A spherical inversion based on the depth of the points put the nearest points (m
 \begin{figure}
   \centering
   \includegraphics[scale=0.6]{img/hpr4.png}
-  \caption{A topview of the visibile points after back propagation of convex hull computation (Figure~\ref{fig:hpr1}).}
+  \caption{A top-view of the visible points after back propagation of convex hull computation (Figure~\ref{fig:hpr1}).}
   \label{fig:hpr4}
 \end{figure}
 \begin{figure}
   \centering
   \includegraphics[scale=0.45]{img/hpr3.png}
-  \caption{Another view of the visibile points after back projection of convex hull computation (Figure~\ref{fig:hpr1}).}
+  \caption{Another view of the visible points after back projection of convex hull computation (Figure~\ref{fig:hpr1}).}
   \label{fig:hpr3}
 \end{figure}
 
 
 Figure~\ref{fig:hpr} shows both operation results\footnote{This result comes from the paper}. On the left is performed a spherical flipping (the inversion) of the point cloud, centered at the viewpoint $C$. In this example, the ray $R$ of the sphere seems to be $R_\text{max}$: \emph{the distance from $C$ to the furthest point}. However, the HPR authors suggest to use a second viewpoint (the opposite of the current viewpoint, its reflection about center of mass of the point cloud) and vary $R$ while maximizing the number of points considered visible by a unique viewpoint. Figure~\ref{fig:hpr-r} shows on the same plot, for a particular point cloud, the estimated $R=R_\text{opt}$ (in brown) and the percentage or error of the method while varying $R$.
 
-Figures \ref{fig:hpr1}, \ref{fig:hpr3} and \ref{fig:hpr4} give an idea of how the HPR method behaves with LiDAR point clouds. As you can see in Figure~\ref{fig:hpr3} and Figure~\ref{fig:hpr4}, it is able to detect visible points within a small distance to the scanner location but quicly has difficulties when going away.
+Figures \ref{fig:hpr1}, \ref{fig:hpr3} and \ref{fig:hpr4} give an idea of how the HPR method behaves with LiDAR point clouds. As you can see in Figure~\ref{fig:hpr3} and Figure~\ref{fig:hpr4}, it is able to detect visible points within a small distance to the scanner location but quickly has difficulties when going away.
 
-Although this method is simple, has only meaningful computations and an interesting complexity $\mathcal{O}(n\log{}n)$, it is not robust enough against noisy point clouds, in particular LiDAR ones. With a small $R$, visible points may be marked as non-visible by HPR. On the contrary, with a large $R$, non-visible points may be considered as visible. Moreover, this method handles poorly concave forms ; it requirs a low curvature in case of concavity.
+Although this method is simple, has only meaningful computations and an interesting complexity $\mathcal{O}(n\log{}n)$, it is not robust enough against noisy point clouds, in particular LiDAR ones. With a small $R$, visible points may be marked as non-visible by HPR. On the contrary, with a large $R$, non-visible points may be considered as visible. Moreover, this method handles poorly concave forms ; it requires a low curvature in case of concavity.
 
 
 \subsection{\emph{Visibility of Noisy Point Cloud Data}}
@@ -116,7 +116,7 @@ Noise in point clouds can be observed through perturbations of the convex hull. 
 \begin{equation*}
   P^\sigma = \left\lbrace p_i + \sigma n_i | p_i \in P  \right\rbrace
 \end{equation*}
-where $n_i$ is a unit vector oriented in a uniformy chosen random direction and $\sigma$ a uniform random variable over the rand $[0, a]$. The \cite{vis2} paper explains some experiences and mathematical proof leading to:
+where $n_i$ is a unit vector oriented in a uniformly chosen random direction and $\sigma$ a uniform random variable over the rand $[0, a]$. The \cite{vis2} paper explains some experiences and mathematical proof leading to:
 \begin{itemize}
   \item a guard band on the convex hull which helps to consider as visible all points closer than $2 \times \epsilon_{\text{max}}$ to the convex hull. The value of $\epsilon_\text{max}$ is the maximum noise of $P^\sigma$ in the inverted domain.
     \begin{equation*}
@@ -127,12 +127,12 @@ where $n_i$ is a unit vector oriented in a uniformy chosen random direction and 
     \begin{equation*}
       ma_{\text{max}} \leq R \leq \left( \frac{\alpha D}{2 \sigma} + 1 \right) \left( \frac{a_{\text{min}} - \sigma}{4} \right)
     \end{equation*}
-    where $D = a_\text{max} - a_\text{min}$ is the diameter of the point cloud and $m$ a value describing the surface form. When $m = 1$ the local region is convex, if $m > 1$ it is concav.
-  \item A guard zone around the noisy point cloud that rejects viewpoints closer than the treshold. This threshold can be observed in Figure~\ref{fig:epsilon}. It depends on the point cloud, this is just a particular case.
+    where $D = a_\text{max} - a_\text{min}$ is the diameter of the point cloud and $m$ a value describing the surface form. When $m = 1$ the local region is convex, if $m > 1$ it is concave.
+  \item A guard zone around the noisy point cloud that rejects viewpoints closer than the threshold. This threshold can be observed in Figure~\ref{fig:epsilon}. It depends on the point cloud, this is just a particular case.
     \begin{equation*}
       a_\text{min} \geq \frac{\left(4m + \frac{\alpha}{2} \right) D + \alpha}{\left(\frac{\alpha D}{2 \sigma} - (4m - 1)\right)}
     \end{equation*}
-  \item an iterative method for concavity robustness. It varies $R$ value within the range. For each $R$ value it computes points visibility and update points weight based on the number of times they are tagged as visible. The idea is that high curvatures becore visible at higher values while others (convex, oblique, planar) are consistently visible. Thi is the function $f$ used in the Algorithm~\ref{alg:RobustHPR}.
+  \item an iterative method for concavity robustness. It varies $R$ value within the range. For each $R$ value it computes points visibility and update points weight based on the number of times they are tagged as visible. The idea is that high curvatures become visible at higher values while others (convex, oblique, planar) are consistently visible. This is the function $f$ used in the Algorithm~\ref{alg:RobustHPR}.
 \end{itemize}
 
 The algorithm is shown in Algorithm~\ref{alg:RobustHPR}. Note that the function $f$ (which computes the ray $R$) is not formally written. It is the last bullet point above on the improvements of \cite{vis2} over \cite{vis1}. Instead it is describe above. Of course, the following algorithm is called for each scanner location $C$. When a point is seen by multiple scanners, we choose the closer one.
@@ -194,8 +194,6 @@ The algorithm is shown in Algorithm~\ref{alg:RobustHPR}. Note that the function 
 
 Figure~\ref{fig:rhpr-result} shows some results comparing this method (Robust HPR) with the original methods, one using $R = R_\text{max}$ and the other $R = R_\text{opt}$. It may be observed that Robust HPR achieves better results than the others. In our case, this has also been observed. However, it is still not robust enough against LiDAR point cloud noises. This is what leads us toward a custom approach described in Section~\ref{sc:custom}.
 
-FIXME: Add pictures of the algorithm on Monday!!!
-
 \section{A custom disk-based approach}
 \label{sc:custom}
 This section describes our custom \emph{disk-based} approach to resolve visibility in point clouds.
@@ -205,14 +203,14 @@ This section describes our custom \emph{disk-based} approach to resolve visibili
 This method reduces the point cloud visibility problem to ray casting and intersection computations. It assigns to each point $p_i$ a \emph{disk}. A \emph{disk} is defined as a tuple $\left\langle p_i, r_d, \vec{n} \right\rangle$. It is computed as follows for a specific point $p_i$:
 \begin{itemize}
   \item $p_i$ becomes the center of the disk,
-  \item $r_d$ is the mediane distance to the $50$ nearest points of $p_i$,
+  \item $r_d$ is the median distance to the $50$ nearest points of $p_i$,
   \item $\vec{n}$ is the normal at $p_i$ computed via a PCA (Section~\ref{subsc:pca}) applied on the $50$ nearest points of $p_i$, including itself.
 \end{itemize}
 
 Our custom approach can be compared to ray tracing as it casts a ray between all possible combination pairs of point $p_i$ and viewpoint $c_k$. We use the CGAL library~\cite{cgal} for collision detection. We define our custom Eigen \emph{Disk} type and specify how to detect intersections between a ray and a disk. Basically, a ray $r_a$ intersects a disk $d_j$ when the distance between its projection on the underlying disk plane and the disk center is lower than the
 disk's ray $r_d$. Each time a ray is casted, a tuple $\left\langle v, n, d, k \right\rangle$ is saved. It contains:
 \begin{itemize}
-  \item a boolean $v$ telling if $p_i$ is visible from $c_k$,
+  \item a Boolean $v$ telling if $p_i$ is visible from $c_k$,
   \item the number $n$ of collisions of $r_a$,
   \item the distance $d$ from $p_i$ and $c_k$,
   \item the scanner identifier $k$.
@@ -220,10 +218,10 @@ disk's ray $r_d$. Each time a ray is casted, a tuple $\left\langle v, n, d, k \r
 
 For each point, we cast all possible combination of rays with the viewpoints $c_k$. This gives multiple tuples. These tuples are sorted following this rule:
 
-Consider two tuples $\left\langle v_1, n_1, d_1, k_1 \right\rangle$ and $\left \langle v_2, n_2, d_2, k_3 \right\rangle$ being compared. If one and only one tuple has a positive $v$, it is positionned before the other tuple. Otherwise we compare $n_1$ and $n_2$. If $ | n_1 - n_2 | > 2 $, the tuple having less collision is positionned before. Otherwise, we use a third criteria: the distance from the scanner which puts before, tuples with closer scanners. if a tuple has at least two collisions less than the other, it comes before. The sorting criteria have been found empirically. After sorting them out, the tuple at the position $0$ contains the scanner identifier associated to $p_i$.
+Consider two tuples $\left\langle v_1, n_1, d_1, k_1 \right\rangle$ and $\left \langle v_2, n_2, d_2, k_3 \right\rangle$ being compared. If one and only one tuple has a positive $v$, it is positioned before the other tuple. Otherwise we compare $n_1$ and $n_2$. If $ | n_1 - n_2 | > 2 $, the tuple having less collision is positioned before. Otherwise, we use a third criteria: the distance from the scanner which puts before, tuples with closer scanners. if a tuple has at least two collisions less than the other, it comes before. The sorting criteria have been found empirically. After sorting them out, the tuple at the position $0$ contains the scanner identifier associated to $p_i$.
 
 \subsection{Implementation}
-Algorithm~\ref{alg:disk-based} shows our custom algorithm for computing visibility in point clouds, especially LiDAR ones. As explained in Section~\ref{subsc:custom-overview}, we iterate over all points, all scanners, casts a ray between each pair combination possible and detects collisons. Actually, we use an improved version of this algorithm which assign multiple disks with different rays to each point. The idea is to have more different tuple candidates before sorting them. Clearly, this
+Algorithm~\ref{alg:disk-based} shows our custom algorithm for computing visibility in point clouds, especially LiDAR ones. As explained in Section~\ref{subsc:custom-overview}, we iterate over all points, all scanners, casts a ray between each pair combination possible and detects collisions. Actually, we use an improved version of this algorithm which assign multiple disks with different rays to each point. The idea is to have more different tuple candidates before sorting them. Clearly, this
 slows the algorithm in a significant way, but instead, helps to have better visibility results.
 \begin{algorithm}[tb]
   \SetAlgoVlined
@@ -311,13 +309,13 @@ slows the algorithm in a significant way, but instead, helps to have better visi
 \begin{figure}
   \centering
   \includegraphics[scale=0.35]{img/complete-result1.png}
-  \caption{A 3D reconstruction view of a point cloud after using \emph{ScanFinder} and \emph{DiskBasedVisivility}.}
+  \caption{A 3D reconstruction view of a point cloud after using \emph{ScanFinder} and \emph{DiskBasedVisibility}.}
   \label{fig:complete-result1}
 \end{figure}
 \begin{figure}
   \centering
   \includegraphics[scale=0.35]{img/complete-result2.png}
-    \caption{Another 3D reconstruction view of the same point cloud as Figure~\ref{fig:complete-result1} after using \emph{ScanFinder} and \emph{DiskBasedVisivility}.}
+    \caption{Another 3D reconstruction view of the same point cloud as Figure~\ref{fig:complete-result1} after using \emph{ScanFinder} and \emph{DiskBasedVisibility}.}
   \label{fig:complete-result2}
 \end{figure}
 
@@ -350,11 +348,11 @@ Pump (604,638 points)                       & 0       & 604,638       & 0       
   \caption{The percentage of error of our Disk-based approach on different point cloud sets with their respective sizes.}
   \label{table:vis-error}
 \end{table}
-Figure~\ref{fig:custom-result1} and Figure~\ref{fig:custom-result2} are two different views of our method results on a point cloud. In general the method seems to work well. Points near one scanner are coloured with a unique color. Figure~\ref{fig:custom-result2} shows a particular case where the method works well. Assume the current viewpoint as being at the scanner associated to the red color. The algorithm is able to detect that a wall far away (in blue) is hidden by a closer wall (in red). Figure~\ref{fig:custom-result3} and Figure~\ref{fig:custom-result4} shows two other views of another point cloud visibility result.
+Figure~\ref{fig:custom-result1} and Figure~\ref{fig:custom-result2} are two different views of our method results on a point cloud. In general the method seems to work well. Points near one scanner are colored with a unique color. Figure~\ref{fig:custom-result2} shows a particular case where the method works well. Assume the current viewpoint as being at the scanner associated to the red color. The algorithm is able to detect that a wall far away (in blue) is hidden by a closer wall (in red). Figure~\ref{fig:custom-result3} and Figure~\ref{fig:custom-result4} shows two other views of another point cloud visibility result.
 
 Table~\ref{table:counts} shows some statistics of our method for different point clouds. The first point cloud contains only one scanner. This is a particular case where we automatically attribute all points to it. Figure~\ref{fig:positive-negative} shows a view where each point is colored base on its category in Table~\ref{table:counts}. Although these measures are interesting, they ignore one important point. A point does not need to be assigned to its original scanner,
 it only needs a scanner that sees it well. Some points in false positive and false negative may not be false, as long as the scanners to which they are attributed find the right normal orientations. We present in Table~\ref{table:vis-error} a more accurate measure. It computes the point cloud visibility, orient the normals and compare this orientation with the known correct one. Our method achieves good results. It has not more than $3$ percent error.
 
-In summary, this custom approach meets all of our requirements instead of the running time. For instance, it almost took 6 days to compute visibility of a 2.5 GB point cloud with 135,069,108 points. This algorithm was written as a prototype in order to validate our intuitions, it has not been optimized yet. Several improvements can be made on the algorithm, such as tasks parallelization. The algorithm will certainly be optimized before being integrated to \CC.
+In summary, this custom approach meets all of our requirements instead of the running time. For instance, it almost took 6 days to compute visibility of a 2.5 GB point cloud with 135,069,108 points. This algorithm was written as a prototype in order to validate our intuitions, it has not been optimized yet. Several improvements can be made on the algorithm, such as parallelization. The algorithm will certainly be optimized before being integrated to \CC.
 
 To finish appropriately this Chapter and the previous one, you can find in Figure~\ref{fig:complete-result1} and Figure~\ref{fig:complete-result2} two views of a point cloud reconstructed using both \emph{ScanFinder} followed by \emph{DiskBasedVisibility}. Despite some errors, notably the trees reconstruction, the result goes beyond our expectations.

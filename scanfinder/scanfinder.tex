@@ -6,7 +6,7 @@ finding before showing and discussing the results of two different approaches de
 \section{Specifications}
 \label{sc:spec-scanfinder}
 \subsection{Context}
-\CC started to support point cloud reconstruction two (2) years ago. Today it even provides a hybrid processing mode which gives the opportuniy to combine the best of both words, photos and point clouds, in order to have a better precision. However, a recurring problem observed among \CC users is the impossibility to use the software after losing some metadata, specifically, scanners location. This is particulary problematic because usually, \CC users subcontract point cloud production to private companies which can charge them again for new exports (provided that they still have the point clouds). To enable customers to use their \emph{defective} point clouds, the graphic interface of \CC allows to specify a scanner location by hand by positioning it in a 3D representation of the point cloud. But, it does not work with merged scans ; only one scanner location can be specified. Usually, users do not know the location and even if they know, the reconstruction is subjected to too much errors.
+\CC started to support point cloud reconstruction two (2) years ago. Today it even provides a hybrid processing mode which gives the opportunity to combine the best of both words, photos and point clouds, in order to have a better precision. However, a recurring problem observed among \CC users is the impossibility to use the software after losing some metadata, specifically, scanners location. This is particularly problematic because usually, \CC users subcontract point cloud production to private companies which can charge them again for new exports (provided that they still have the point clouds). To enable customers to use their \emph{defective} point clouds, the graphic interface of \CC allows to specify a scanner location by hand by positioning it in a 3D representation of the point cloud. But, it does not work with merged scans ; only one scanner location can be specified. Usually, users do not know the location and even if they know, the reconstruction is subjected to too much errors.
 
 This is how the need for an algorithm to automatically find scanners positions in a point cloud is born. In addition, with such algorithm, \CC will have the possibility to enhance the set of supported file formats. Currently, it supports file formats such as \emph{PTX}, \emph{e57}, \emph{PLY}, \emph{POD}, each of them being able to store scanners positions. But not all file formats are able to do it. For instance, \emph{LAS} file format is not currently accepted as input because it does not provide any means of storing scanners location in metadata. Supporting more input file formats is also a good point of interest for \CC users.
 
@@ -17,7 +17,7 @@ In summary, the purpose here is to improve \CC point cloud support in two ways: 
   \item be invariant to the number of scanners in the point cloud,
   \item be invariant to differences between scanners, such as: density, noise, rotation angle,
   \item find all scanners locations,
-  \item have a reasonnable running time.
+  \item have a reasonable running time.
 \end{itemize}
 
 Let us emphasize here that as a first step, the algorithm is expected to work only with static point clouds. It would be difficult to have the same approach with static and mobile point clouds. Extending it to mobile point clouds is certainly the next step.
@@ -30,7 +30,7 @@ As said in the introduction, to the best of our knowledge, there have been no pr
 
 \emph{``Detecting the positions of multiple scanners exclusively from a point cloud is a subject not identified as interesting by academics, and thus not tackled since this information is almost always available from the outset. The same holds true on the industry side, it is only recently that scanner position information is relevant for a few applications like \CC."}
 
-The closest publications on the topic are \cite{ml1, ml2, ml3, ml4, ml5}. They use learning techniques to estimate the point of view of one particular photo based on other photos. But this belongs more to the photogrametry domain and therefore is not applicable in a point cloud context.
+The closest publications on the topic are \cite{ml1, ml2, ml3, ml4, ml5}. They use learning techniques to estimate the point of view of one particular photo based on other photos. But this belongs more to the photogrammetry domain and therefore is not applicable in a point cloud context.
 
 
 
@@ -48,10 +48,10 @@ This section explains a common first step to methods described in Section~\ref{s
 
 \subsection{LiDAR scanner and context}
 \label{subsc:lidar}
-LiDAR\footnote{This paragraph is inspired by \cite{lidar}.} is an acronym of Light Detection and Ranging. It is a remote sensing technology which uses the pulse from a laser to collect measurements. The principle is simple: it works in a similar way to Radar and Sonar but uses light waves from a laser, instead of radio or sound waves. A LiDAR system calculates how long it takes for the light to hit an object or surface and reflect back to the scanner and then, uses the velocity of light\footnote{The velocity, or speed of light is 299,792,458 metres
+LiDAR\footnote{This paragraph is inspired by \cite{lidar}.} is an acronym of Light Detection and Ranging. It is a remote sensing technology which uses the pulse from a laser to collect measurements. The principle is simple: it works in a similar way to Radar and Sonar but uses light waves from a laser, instead of radio or sound waves. A LiDAR system calculates how long it takes for the light to hit an object or surface and reflect back to the scanner and then, uses the velocity of light\footnote{The velocity, or speed of light is 299,792,458 meters
 per second.} to calculate the distance. LiDAR systems can fire around 1,000,000 pulses per second.
 
-When scanning, there are two kind of rotations that a LiDAR scanner performs. They are indicated by black arrows in Figure~\ref{fig:lidar}. Not only a LiDAR scanner has a constant rotation angle when turning on itself but it also has a constant vertical rotation angle when scanning the environment. Because of these constant rotation angles, the further we go, the lower the point density is. On the contrary, the closer to the scanner we are, the higher the point density is. This density variation can be observed in
+When scanning, there are two kinds of rotations that a LiDAR scanner performs. They are indicated by black arrows in Figure~\ref{fig:lidar}. Not only a LiDAR scanner has a constant rotation angle when turning on itself but it also has a constant vertical rotation angle when scanning the environment. Because of these constant rotation angles, the further we go, the lower the point density is. On the contrary, the closer to the scanner we are, the higher the point density is. This density variation can be observed in
 Figure~\ref{fig:density}. To conclude, extracting the most dense areas is interesting as they always are around scanner locations and then, reduce the global search area.
 
 \begin{figure}
@@ -89,7 +89,7 @@ The first step of the algorithm is to detect high density regions in the point c
 himself leading to an elliptic empty form\footnote{This elliptic form is the key point of the method described in Section~\ref{sc:elliptic}.} appearing in all point clouds.
 
 Once these points are extracted, a clustering step is applied. The clustering is needed so that points from the point clouds corresponding to potentially different parts of the scene around the scanner can be separated. For each point, we compute its non-oriented normal and the associated \emph{confidence level} by performing a principal component analysis (PCA) on its local neighborhood. Section~\ref{subsc:pca} gives more details on how this PCA works. Then, as long as points are not attributed
-to a cluster, we select the point on the flattest surface, and iteratively add its neighbors that share a coherent normal orientation (the dot product of the two normals must be superior to 0.8 in our experiments). Note that the  flattest surface is determined using condifence levels, they tell which point belongs to a planar region. Figure~\ref{fig:cluster} shows the result of such clustering.
+to a cluster, we select the point on the flattest surface, and iteratively add its neighbors that share a coherent normal orientation (the dot product of the two normals must be superior to 0.8 in our experiments). Note that the  flattest surface is determined using confidence levels, they tell which point belongs to a planar region. Figure~\ref{fig:cluster} shows the result of such clustering.
 
 Once every point is clustered, we discard clusters with too few points (in our experiments, we use a threshold of 0.2\% of the number of high density points). We then detect clusters that are circular. A cluster is considered circular if its centroid, i.e. the average of all the points it contains, is far away from the points of the cluster. Figure~\ref{fig:circular} shows a circular cluster identified.
 
@@ -102,13 +102,13 @@ At this point, we have computed a rough estimate of the scanner's location. Meth
 This section explains one approach we tried in order to solve the problem. Before explaining the method in detail, let us first give the intuition behind this idea.
 
 \subsection{Intuition}
-As said in Section~\ref{subsc:lidar}, LiDAR scanners perfom two kind of rotations. These constant vertical and horizontal rotation angles reveal some grid patterns on surfaces perpendicular to the ground\footnote{To be precise, perpendicular to the surface on which the scanner is installed.}. Figure~\ref{fig:grid1} shows an example of a grid pattern that can be found in point clouds. The purpose here is to find, for a single grid pattern, a relation between all constant rotation angles and the scanner's position. Therefore, this relation can be applied with all possible grid patterns in the point clouds, leading to a problem with a huge set of
+As said in Section~\ref{subsc:lidar}, LiDAR scanners perform two kind of rotations. These constant vertical and horizontal rotation angles reveal some grid patterns on surfaces perpendicular to the ground\footnote{To be precise, perpendicular to the surface on which the scanner is installed.}. Figure~\ref{fig:grid1} shows an example of a grid pattern that can be found in point clouds. The purpose here is to find, for a single grid pattern, a relation between all constant rotation angles and the scanner's position. Therefore, this relation can be applied with all possible grid patterns in the point clouds, leading to a problem with a huge set of
 constraints to solve. The idea is that only the real scanner's location is able to explain in the best way these constant rotation angles.
 
 \begin{figure}
   \centering
   \includegraphics[scale=0.5]{img/grid1.png}
-  \caption{A grid pattern: observe the constant offset between each vertical line and each horizontal lines. Note that the offset between columns is not necessary the same as between lines.}
+  \caption{A grid pattern: observe the constant offset between each vertical line and each horizontal line. Note that the offset between columns is not necessary the same as between lines.}
   \label{fig:grid1}
 \end{figure}
 
@@ -132,13 +132,13 @@ This subsection explains how to find \emph{accurate} grid patterns in point clou
   \SetKwFunction{GetPlanarPatches}{GetPlanarPatches}
   \SetKwProg{Fn}{Function}{}{}
   \Fn{\GetPlanarPatches{$P$}}{
-    \KwIn{a pointcloud $P = \left\lbrace p_i \mid i \in [0, s]  \right\rbrace$.}
+    \KwIn{a point cloud $P = \left\lbrace p_i \mid i \in [0, s]  \right\rbrace$.}
     \KwOut{a set of potential grid-pattern patches.}
     \tcc{We compute the normal of each point and keep both confidence level and normal $\left\langle \mu_i, \vec{v}_i \right\rangle$.}
     \tcc{See Section~\ref{subsc:pca} for more details on PCA algorithm.}
     \tcc{From here, $\forall i \in [0, s]$ we assume $\vec{v}_i$ to be the normal at $i$ and $\mu_i$ its confidence level.}
     \For{$i = 0;\ i < s;\ i = i + 1$}{
-      $\left\langle \mu_i, \vec{v}_i \right\rangle \gets PCA($50 closest neighbours of $i)$\;
+      $\left\langle \mu_i, \vec{v}_i \right\rangle \gets PCA($50 closest neighbors of $i)$\;
     }
     $R\gets\emptyset$\;
     visited $\gets\emptyset$\;
@@ -147,7 +147,7 @@ This subsection explains how to find \emph{accurate} grid patterns in point clou
       \If{$i \in$ visited or $\mu_i > 0.001$}
       {\Continue}
       tmp $\gets \left\lbrace p_i \right\rbrace$\;
-      \ForEach{$j \in $ 50 closest neighbours of $i$}{
+      \ForEach{$j \in $ 50 closest neighbors of $i$}{
         \tcc{If $\vec{v}_j$ and $\vec{v}_i$ are almost colinear and $j$ has not been seen yet.}
         \If{abs($\vec{v}_j \times \vec{v}_i$) $> 0.9$ and $j \not\in$ visited}{
           tmp $\gets$ tmp $\cup\ p_j$\;
@@ -161,15 +161,15 @@ This subsection explains how to find \emph{accurate} grid patterns in point clou
     }
     \Return{$R$}\;
   }
-  \caption{Find various not-overlaping planar patches in a point cloud.
+  \caption{Find various not-overlapping planar patches in a point cloud.
     \label{alg:GetPlanarPatches}}
 \end{algorithm}
 
-Algorithm~\ref{alg:GetPlanarPatches} shows how to extract some planar patches in a point cloud. A preprocessing step already done and explained in Section~\ref{subsc:highdens} is to compute for each point of the point cloud, the normal and its \emph{confidence level}. This \emph{confidence level} plays a key role in the algorithm as it tells how planar the region around each point is. By browsing all points, each time we find a point with a good \emph{confidence level} ($> 0.001$), we start to build a patch around it. To do so, we extract its 50
-closest neighbours and consider only those having their normal almost colinear to the normal of the starting point. If the size of the obtained set is bigger enough ($>\ 0.9 \times 200$), the set is kept and otherwise, not. Also, in order to avoid overlaping or patches too close, we keep track of visited points.
+Algorithm~\ref{alg:GetPlanarPatches} shows how to extract some planar patches in a point cloud. A pre-processing step already done and explained in Section~\ref{subsc:highdens} is to compute for each point of the point cloud, the normal and its \emph{confidence level}. This \emph{confidence level} plays a key role in the algorithm as it tells how planar the region around each point is. By browsing all points, each time we find a point with a good \emph{confidence level} ($> 0.001$), we start to build a patch around it. To do so, we extract its 50
+closest neighbors and consider only those having their normal almost colinear to the normal of the starting point. If the size of the obtained set is bigger enough ($>\ 0.9 \times 200$), the set is kept and otherwise, not. Also, in order to avoid overlapping or patches too close, we keep track of visited points.
 
-Although planar, this set of patches potentially contains: \textbf{(a)} patches whose underlying surfaces are not orthogonal to the surface of the ground and \textbf{(b)} patches without grid patterns. To filter out each \textbf{(a)} patch, we use a dot product between its normal and the normal of the circular cluster found in the high-density area\footnote{The circular cluster desribes the surface on which the scanner is positioned.} (see Section~\ref{sc:highdens}). For \textbf{(b)} patches,
-the objectif is to indentify grid-patterns. To do so, we use least square method in order to fit lines. Least-square is explained in Section~\ref{subsc:least}. Fitting a line fall into linear least square problems. Figure~\ref{fig:fitline} shows how to fit a line to a set of points using the Eigen library~\cite{eigenweb}. The purpose is to use this line fitting in order to cluster lines and columns. Figure~\ref{fig:line-col-cluster} shows results of a clustering performed on two patches after several fittings and adjustements. We only keep firstly patches containing a grid-pattern and then, patches having a regular gap between columns and lines. The rest is discarded.
+Although planar, this set of patches potentially contains: \textbf{(a)} patches whose underlying surfaces are not orthogonal to the surface of the ground and \textbf{(b)} patches without grid patterns. To filter out each \textbf{(a)} patch, we use a dot product between its normal and the normal of the circular cluster found in the high-density area\footnote{The circular cluster describes the surface on which the scanner is positioned.} (see Section~\ref{sc:highdens}). For \textbf{(b)} patches,
+the objective is to identify grid-patterns. To do so, we use least square method in order to fit lines. Least-square is explained in Section~\ref{subsc:least}. Fitting a line fall into linear least square problems. Figure~\ref{fig:fitline} shows how to fit a line to a set of points using the Eigen library~\cite{eigenweb}. The purpose is to use this line fitting in order to cluster lines and columns. Figure~\ref{fig:line-col-cluster} shows results of a clustering performed on two patches after several fittings and adjustments. We only keep firstly patches containing a grid-pattern and then, patches having a regular gap between columns and lines. The rest is discarded.
 
 \begin{figure}
   \centering
@@ -197,7 +197,7 @@ the objectif is to indentify grid-patterns. To do so, we use least square method
     \begin{subfigure}[t]{0.5\textwidth}
       \centering
         \includegraphics[height=2.5in]{img/grid-lines.png}
-        \caption{Lines clustering performed on two patch.}
+        \caption{Lines clustering performed on two patches.}
     \end{subfigure}%
     ~
     \begin{subfigure}[t]{0.5\textwidth}
@@ -209,16 +209,16 @@ the objectif is to indentify grid-patterns. To do so, we use least square method
     \label{fig:line-col-cluster}
 \end{figure*}
 
-Once only \emph{accurate} patches are kept, columns and lines are identified, the problem can be formalised.
+Once only \emph{accurate} patches are kept, columns and lines are identified, the problem can be formalized.
 
 \subsection{Equation to solve}
 \label{subsc:eq}
 
 For a little recall of Section~\ref{sc:grid-pattern}, the purpose here is to find a relation between the scanner's position (what we are looking for) and the regular gaps between lines and columns. At this point, we already have a reduced area of research which is around the circular cluster obtained in Section~\ref{subsc:highdens}. What we need, is a set of constraints that will help to set the scanner at a specific position within this area.
 
-Look at Figure~\ref{fig:topview}. There are four (4) vertical lines viewed from a bird's eye: $a$, $b$, $c$ and $d$. They are represented as points because of the point of view. A regular between them can be observed. As explained in the introduction to LiDAR scanners (Section~\ref{subsc:lidar}) this regular gap is due to the consistent angle of rotation of the scanner $\alpha_1 = \alpha_2 = \alpha_3$.
+Look at Figure~\ref{fig:topview}. There are four (4) vertical lines viewed from a bird's eye: $a$, $b$, $c$ and $d$. They are represented as points because of the point of view. A regular gap between them can be observed. As explained in the introduction to LiDAR scanners (Section~\ref{subsc:lidar}) this regular gap is due to the consistent angle of rotation of the scanner $\alpha_1 = \alpha_2 = \alpha_3$.
 
-These angles directly involve the scanner location in all equations. Here is how the problem is built: each time the scanner location is set, we minimize for each grid-pattern, and for each pair of two consecutive lines (or columns), the absolute difference between their respective angles. In our case me minimize:
+These angles directly involve the scanner location in all equations. Here is how the problem is built: each time the scanner location is set, we minimize for each grid-pattern, and for each pair of two consecutive lines (or columns), the absolute difference between their respective angles. In our case we minimize:
 \begin{align*}
   d_1 &= |\alpha_1 - \alpha_2|\\
   d_2 &= |\alpha_2 - \alpha_3|\\
@@ -277,7 +277,7 @@ This is a non-linear least-square problem which can be resolved using the Ceres 
           angle radius=1cm] {angle=d--f--c};
 
   \end{tikzpicture}
-  \caption{Illustration of the problem preventing the grid-pattern method from finding the scanner location. Note that this is a top view over four (4) vertical grid lines ($a$, $b$, $c$ and $d$), the apprixmation ($s'$) and the real scanner ($s$).}
+  \caption{Illustration of the problem preventing the grid-pattern method from finding the scanner location. Note that this is a top view over four (4) vertical grid lines ($a$, $b$, $c$ and $d$), the approximation ($s'$) and the real scanner ($s$).}
   \label{fig:grid-problem}
 \end{figure}
 
@@ -298,10 +298,10 @@ Let us take one grid-pattern in order to illustrate the problem: Figure~\ref{fig
 \end{align*}
 
 Therefore, with a huge set of equations involving several grid-patterns, the optimal solution for
-the solver is to put the scanner on the \emph{mean plan of all grid-pattern's underlying planes}. This is why, without the reduced area constraint, the approximated scanner is far away from the point cloud as the solver tries to reduce all angle differences and then, satisfy all grid-patterns. Another problem found is that this method is too much subjected to noise. We are talking about really small values for angle differences that we want to minimize. A small noise can have
+the solver is to put the scanner on the \emph{mean plan of all grid-pattern's underlying planes}. This is why, without the reduced area constraint, the approximated scanner is far away from the point cloud as the solver tries to reduce all angle differences (with noisy points) to satisfy all grid-patterns. Also, this method is not robust to noise. We are talking about really small values for angle differences that we want to minimize. A small noise can have
 huge effects during the solving.
 
-To conclude, angles differences are not discriminating enough. We believe there is a way to express the problem, in order to bypass this behaviour but we deciced to try another approach presented in Section~\ref{sc:elliptic}. The current approach is limited to one scanner whereas the other one works with multiple scaners, therefore, is more interesting for \CC.
+To conclude, angles differences are not discriminating enough. We believe there is a way to express the problem, in order to bypass this behavior but we decided to try another approach presented in Section~\ref{sc:elliptic}. The current approach is limited to one scanner whereas the other one works with multiple scanners, therefore, is more interesting for \CC.
 
 
 \section{The elliptic method}
@@ -309,7 +309,7 @@ To conclude, angles differences are not discriminating enough. We believe there 
 This section describes the second approach to solve the scanner location finding problem. This approach is more interesting than the one of Section~\ref{sc:grid-pattern} because it works natively with merged point clouds (multiple scanners within a point cloud). Let us have the intuition of this method.
 
 \subsection{Intuition}
-Recall that a first common step to both methods is performed. This step finds all  circular clusters around all scanner locations of the point cloud. It is described in Section~\ref{sc:highdens}. As said in Section~\ref{sc:highdens}, these empty circles appears because the scanner is not able to scan below itself.
+Recall that a first common step (Section~\ref{sc:highdens})to both methods is performed. This step finds all  circular clusters around all scanner locations of the point cloud. These empty circles appears because the scanner is not able to scan below itself.
 
 This method tries to find the scanner location in two steps:
 \begin{itemize}
@@ -317,12 +317,12 @@ This method tries to find the scanner location in two steps:
   \item set the scanner on this axis by estimating its height
 \end{itemize}
 
-The $z$ axis on which the scanner is is simply the axis perpendicular to the circular cluster which runs through its center. In order to find this axis, we fit an ellipse arround the circular cluster before finding its center. Once the axis is known, we try to estimate the scanners height.
+The $z$ axis on which the scanner is is simply the axis perpendicular to the circular cluster which runs through its center. In order to find this axis, we fit an ellipse around the circular cluster before finding its center. Once the axis is known, we try to estimate the scanners height.
 
 The first key point of this method is that the scanner location is necessary on the axis perpendicular to this elliptic form and which runs through its center. The intuition is that the density of a local point is linked to its distance from the scanner. Figure~\ref{fig:density} shows the variation of density as we go further away from the scanner location. Using multiple points in the high density area, we are able to triangulate the position of the scanner. The real scanner location
 is the best position able to explain the link between the local density of each point and its distance from the scanner.
 
-In Section~\ref{subsc:fit} we describe how the scanner's axis is found and in  Section~\ref{subsc:ellipse-eq} we show how to formalise the non-linear least square problem to solve.
+In Section~\ref{subsc:fit} we describe how the scanner's axis is found and in  Section~\ref{subsc:ellipse-eq} we show how to formalize and solve the non-linear least square problem.
 
 
 \subsection{Fitting ellipse}
@@ -360,7 +360,7 @@ from the point to the scanner. Using the fact that point density decreases propo
 \frac{d_a \times r_a^2}{\cos(\alpha_a)} = \frac{d_b \times r_b^2}{\cos(\alpha_b)}
 \label{eq:dens}
 \end{equation}
-where $d_a$ is the spatial density of $a$ and $d_b$ the spatial density of $b$. We normalize each spatial density by the cosinus of each normal's point and the optic beam in order to optain the scanner's point of view density which is different from the spatial density. Look at Figure~\ref{fig:sideview} for a visual understanding. The local density of points $a$ and $b$ are known but of course their distances from the scanner are not because they depend on the scanner position. This is why knowing the axis on which the scanner is is interesting because it helps to restrain the area of research. Note that two solutions can be found but we easily discriminate the other one as it is under the point cloud.
+where $d_a$ is the spatial density of $a$ and $d_b$ the spatial density of $b$. We normalize each spatial density by the cosinus of each normal's point and the optic beam in order to obtain the scanner's point of view density which is different from the spatial density. Look at Figure~\ref{fig:sideview} for a visual understanding. The local density of points $a$ and $b$ are known but of course their distances from the scanner are not because they depend on the scanner position. This is why knowing the axis on which the scanner is is interesting because it helps to restrain the area of research. Note that two solutions can be found but we easily discriminate the other one as it is under the point cloud.
 
 For each circular cluster, we pick a sample of $n$ points (in our experiments, $n=6$ points) with different densities. We then build a system of (\ref{eq:dens}) equations using all possible combinations of the $n$ points in pairs. We then use Ceres~\cite{ceres} which is a non-linear least square solver to determine the position of the scanner. As a result, we retrieve an estimated position of the scanner location.
 
@@ -396,7 +396,7 @@ For each circular cluster, we pick a sample of $n$ points (in our experiments, $
 
 
 \subsection{Results and discussions}
-This method happens to achieve good results. Figure~\ref{fig:ellipse-result} shows an approximation (light blue point) of the real scanner location (green) point. As you can see our approxiamtion is very close to the real scanner's location. By testing on various reference datasets, we found that the error between the correct position and our estimation ranges between $2$ and $20$ cm.
+This method happens to achieve good results. Figure~\ref{fig:ellipse-result} shows an approximation (light blue point) of the real scanner location (green) point. As you can see our approximation is very close to the real scanner's location. By testing on various reference datasets, we found that the error between the correct position and our estimation ranges between $2$ and $20$ cm.
 
 \begin{figure}
   \centering
