@@ -1,6 +1,6 @@
 \chapter{Point Cloud Compression}
 \label{ch:compression}
-This Chapter present the last subject of the internship, \emph{point cloud compression}. Section~\ref{sc:spec-compression} gives a lead on the context bringing such need. Then, Section~\ref{sc:work-compression} mentions notable previously-published work on the subject. In Section~\ref{sc:custom-compression} we describe a custom approach. The benchmark result highlights the relevance of Zip Compression to our objectives. Therefore, in the final Section~\ref{sc:integration}, we discuss about \emph{Zip compression} integration to \CC.
+This Chapter presents the last subject of the internship, \emph{point cloud compression}. Section~\ref{sc:spec-compression} gives a lead on the context bringing such need. Then, Section~\ref{sc:work-compression} mentions notable previously-published work on the subject. In Section~\ref{sc:custom-compression} we describe a custom approach. The benchmark result highlights the relevance of Zip Compression to our objectives. Therefore, in the final Section~\ref{sc:integration}, we discuss about \emph{Zip compression} integration to \CC.
 
 \section{Specifications}
 \label{sc:spec-compression}
@@ -46,7 +46,7 @@ This method stores each point on two hundred three (203) or two hundred seven (2
 \item For each point or normal coordinates $x_i$ , $y_i$, $z_i$, $n_i^x$, $n_i^y$ and $n_i^z$ we store its sign on one (1) bit, the integer part on sixteen (16) bits and the decimal part on ten (10) bits. Originally stored as \emph{double} on sixty-four (64) bits, we reduce it to twenty-six (27) bits. Note that this choice has some limitations. Large-scale point clouds need to be divided into pieces before being compressed in order to fit in the integer range.
 \item Each of the $rgb$ colors can be stored on height (8) bits as their value is between 0 and 255. They are originally stored as \emph{float} in order to support more color variation. The difference is barely visible to the naked eye.
 \item The source ID is stored on five (5) bits, considering there will never be more than thirty-two (32) scanners in a point cloud. It is originally stored as an \emph{uint8\_t}.
-\item The intensity is a decimal value in the range $[0, 1]$. It can be stored on two (2) or height (8) bits depending on the presence of the decimal part. If the value is $0$ or $1$, the first bit is set to $1$ and the second bit is the set to the value. But if the value is a number in the range $]0, 1[$, the first bit is set to $0$ and the others represent the decimal part.
+\item The intensity is a decimal value in the range $[0, 1]$. It can be stored on two (2) or eight (8) bits depending on the presence of the decimal part. If the value is $0$ or $1$, the first bit is set to $1$ and the second bit is the set to the value. But if the value is a number in the range $]0, 1[$, the first bit is set to $0$ and the others represent the decimal part.
 \end{itemize}
 
 Once the packed representation of the point cloud is obtained and written on disk, it is given as an input to Brotli~\cite{brotli} algorithm.
@@ -75,7 +75,7 @@ We decided to integrate Zip compression in \CC.
 
 \section{Integration of Zip compression}
 \label{sc:integration}
-This section describe the integration of Zip compression to \CC. Note that compression is the only one work of this report integrated to \CC. \emph{ScanFinder} and \emph{Disk-based Visibility} are still prototypes.
+This section describes the integration of Zip compression to \CC. Note that compression is the only one work of this report integrated to \CC. \emph{ScanFinder} and \emph{Disk-based Visibility} are still prototypes.
 
 \paragraph{Code interface}
 \begin{figure}
